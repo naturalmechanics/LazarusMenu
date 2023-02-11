@@ -69,7 +69,7 @@ end;
 
 ## Next Step :
 
-- [` `] Add Submenu of Arbitrary Depth
+- [`*`] Add Submenu of Arbitrary Depth
 - [`x`] Add Actions
 - [` `] Add Radio / Check / Images etc
 

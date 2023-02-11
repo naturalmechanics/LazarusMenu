@@ -42,4 +42,4 @@ Legends:
 
 - * -> Working on it now
 - x -> Finished
-- 
+- ` ` -> planned

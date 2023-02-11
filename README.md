@@ -35,11 +35,11 @@ end;
 ## Next Step :
 
 - [` `] Add Submenu of Arbitrary Depth
-- [*] Add Actions
+- [`*`] Add Actions
 - [` `] Add Radio / Check / Images etc
 
 Legends:
 
-- * -> Working on it now
-- x -> Finished
+- `*` -> Working on it now
+- `x` -> Finished
 - ` ` -> planned

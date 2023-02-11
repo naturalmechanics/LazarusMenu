@@ -8,6 +8,11 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls, ExtCtrls, dataTypes;
 type
 
+  TProcType = procedure(const AParm: Integer) of object; // Method type
+  TProcArray = array of TProcType; // Dynamic array
+  TProc           = procedure(AParm: TObject) of object;
+  // tadvancedmenu.pas(281,24) Error: Incompatible types: got "Variant" expected "<;Register>"
+
   { TAdvancedMainMenu }
 
   TAdvancedMainMenu = Class
@@ -42,10 +47,13 @@ type
 
     constructor Create();
 
-    procedure create_mainMenu (var mainMenuItems : Array of String);
-    procedure render(var parent : TForm);
-    procedure render_onPanel(var parent: TPanel);
-
+    procedure create_mainMenu (var mainMenuItems : Array of String; var mainMenuNames : Array of String);
+    procedure render({var} parent : TForm);
+    procedure render_onPanel({var} parent: TPanel);
+    procedure add_mainMenuActions(var actions : TProcArray);
+    procedure add_mainMenuClickAction(var i: Integer; var action: TProc);
+    procedure add_mainMenuSubMenu_byName(targetName : String; var items : Array of String; var itemNames : Array of String);
+    procedure showSubMenu(Sender: TObject);
 
   end;
   function generateRandomNumber() : Integer  ;
@@ -62,7 +70,8 @@ begin
   widthPadding  := 8;
 end;
 
-procedure TAdvancedMainMenu.create_mainMenu(var mainMenuItems: array of String);
+procedure TAdvancedMainMenu.create_mainMenu(var mainMenuItems: array of String;
+  var mainMenuNames: array of String);
 var
   i               : Integer;
   ii              : Integer;
@@ -72,7 +81,7 @@ begin
   for ii := 0 to length(mainMenuItems) -1 do
   begin
     ii_id       := currentID + 1;
-    menuTree.AppendString_asNode(mainMenuItems[ii],ii_id);                        // Inserts a Menu Item in the main double linked list with an Unique ID
+    menuTree.AppendString_asNode(mainMenuItems[ii], mainMenuNames[ii], ii_id);    // Inserts a Menu Item in the main double linked list with an Unique ID
 
     // Append to Item ID
     SetLength(MenuItemIDs, length(MenuItemIds)+1);
@@ -128,7 +137,7 @@ begin
   end;
 end;
 
-procedure TAdvancedMainMenu.render(var parent: TForm);                            // Only draw the main menu. so do not consider children of any node of the menu tree
+procedure TAdvancedMainMenu.render({var} parent: TForm);                            // Only draw the main menu. so do not consider children of any node of the menu tree
 var
   mLabel        : TLabel;
   i             : Integer;
@@ -183,7 +192,7 @@ begin
   end;
 end;
 
-procedure TAdvancedMainMenu.render_onPanel(var parent: TPanel);                   // Only draw the main menu. so do not consider children of any node of the menu tree
+procedure TAdvancedMainMenu.render_onPanel({var} parent: TPanel);                   // Only draw the main menu. so do not consider children of any node of the menu tree
 var
   mLabel        : TLabel;
   i             : Integer;
@@ -236,6 +245,138 @@ begin
     SetLength(mLabels, length(mLabels) +1);
     mLabels[length(mLabels) - 1] := mLabel;
   end;
+end;
+
+procedure TAdvancedMainMenu.add_mainMenuActions(var actions: TProcArray);
+begin
+
+end;
+
+procedure TAdvancedMainMenu.add_mainMenuClickAction(var i: Integer; var action: TProc);
+var
+  ii            : Integer;
+  idx           : Integer;
+  currNode      : ^dataTypes.stringNodeStruct;
+begin
+  currNode := menuTree.root;
+
+
+  while not (currNode^.next = nil) do
+  begin
+    if (currNode^.ID = i) then
+    begin
+      Break;
+    end
+    else
+    begin
+      currNode := currNode^.next;
+    end;
+  end;
+
+
+  for idx := 0 to length(MenuItemIds)-1 do
+  begin
+    if MenuItemIds[idx] = currNode^.ID then
+    begin
+      ii := idx;
+      Break;
+    end;
+
+  end;
+
+  mLabels[ii].OnClick:=action;
+end;
+
+procedure TAdvancedMainMenu.add_mainMenuSubMenu_byName(targetName: String;
+  var items: array of String; var itemNames: array of String);
+var
+  ii            : Integer;
+  idx           : Integer;
+  currNode      : ^dataTypes.stringNodeStruct;
+  nameFound     : Boolean;
+  ii_id         : Integer;
+  ta            : TProc;
+begin
+
+  currNode := menuTree.root;
+
+  nameFound:= False;
+
+  while not (currNode^.next = nil) do
+  begin
+    // showMessage(currNode^.name + ' --> ' + targetName);
+    if (currNode^.name = targetName) then
+    begin
+      nameFound:= True;
+      Break;
+    end
+    else
+    begin
+      currNode := currNode^.next;
+    end;
+  end;
+
+
+
+  if not nameFound then Exit;
+
+  for ii := 0 to length(items) -1 do
+  begin
+    ii_id       := currentID + 1;
+    menuTree.AppendString_asSubNode_byName(targetName, items[ii], itemNames[ii], ii_id);
+
+  end;
+
+  currentID     := currentID + 1   ;
+
+  // ONCE THIS IS DONE
+  // ADD A RENDER MENU ACTION to CURRNODE
+
+  // showMessage(currNode^.name);
+
+  ii_id         := currNode^.ID;
+  for ii:= 0 to length (MenuItemIds) do
+  begin
+    if MenuItemIds[ii] = ii_id then break;
+  end;
+
+  ta            := @showSubMenu;
+  mLabels[ii].OnMouseEnter:= ta ;
+
+end;
+
+procedure TAdvancedMainMenu.showSubMenu(Sender: TObject);
+var
+  panel1        : TPanel;
+  panel2        : TPanel;
+  panel3        : TPanel;
+
+begin
+
+  // showMessage('1');
+
+  panel1        := TPanel.Create(application.MainForm);
+  panel1.Parent := application.MainForm;
+  panel1.Top    := 40;
+  panel1.Left   := 40;
+
+  panel1.Caption:= 'SUBMENU ';
+  panel1        := TPanel.Create(application.MainForm);
+  panel1.Parent := application.MainForm;
+  panel1.Top    := 80;
+  panel1.Left   := 40;
+
+  panel1.Caption:= 'ITEM ';
+
+  panel1        := TPanel.Create(application.MainForm);
+  panel1.Parent := application.MainForm;
+  panel1.Top    := 120;
+  panel1.Left   := 40;
+
+  panel1.Caption:= 'MORE ';
+
+  // showMessage('2');
+
 end;
 
 function generateRandomNumber() : Integer   ;

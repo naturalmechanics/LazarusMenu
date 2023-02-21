@@ -20,9 +20,8 @@ type
   public
 
     MenuItemIds   :  Array of Integer;
-    MenuItemColors:  Array of TColor;
-    MenuItemFonts :  Array of TFont;                                              // Item Fonts
 
+    MenuItemFonts :  Array of TFont;                                              // Item Fonts
     MenuBorderThicknesses:Array of Integer;
     MenuBorderRadii: Array of Integer;                                            // Border rounding
     MenuBGColors  :  Array of TColor;                                             // Background color for BCL Label
@@ -100,7 +99,8 @@ begin
   widthPadding  := 8;
 end;
 
-procedure TAdvancedMainMenu.create_mainMenu(var mainMenuItems: array of String; var mainMenuNames: array of String);
+procedure TAdvancedMainMenu.create_mainMenu(var mainMenuItems: array of String;
+  var mainMenuNames: array of String);
 var
   i               : Integer;
   ii              : Integer;
@@ -116,17 +116,9 @@ begin
     SetLength(MenuItemIDs, length(MenuItemIds)+1);
     MenuItemIDs[length(MenuItemIds) - 1] := ii_id;
 
-    // Append to color
-    SetLength(MenuItemColors, length(MenuItemColors) + 1);
-    MenuItemColors[length(MenuItemColors) - 1] := clWindowText ;                  // We add a default color.
-
     // Append to Fonts
     SetLength(MenuItemFonts, length(MenuItemFonts) + 1);
     MenuItemFonts[length(MenuItemFonts) -1]    := Screen.SystemFont;              // Added the SystemFont
-
-    // Append to Borders
-    SetLength(MenuBorderColors, length(MenuBorderColors) + 1);
-    MenuBorderColors[length(MenuBorderColors) -1] := clWindowText;                // Added the Window Text color, picks the color as specified by the theme
 
     // Append to Border Thickness
     SetLength(MenuBorderThicknesses, length(MenuBorderThicknesses) + 1);
@@ -139,6 +131,10 @@ begin
     // Append to BG Colors
     SetLength(MenuBGColors, length(MenuBGColors) + 1);
     MenuBGColors[length(MenuBGColors) -1]:= clForm;                               // Added the Form Background color (will also pick up the default)
+
+    // Append to FG Colors
+    SetLength(MenuFGColors, length(MenuFGColors) + 1);
+    MenuFGColors[length(MenuFGColors) -1]:= clWindowText;                         // Added the Form Background color (will also pick up the default)
 
     // Append to Font Sizes
     SetLength(MenuFontSizes, length(MenuFontSizes) + 1);
@@ -208,7 +204,7 @@ begin
   mLabel.Width  := mLabel.Font.GetTextWidth(mLabel.Caption) + 4;
   mLabel.Rounding.RoundX:=MenuBorderRadii[j];
   mLabel.Rounding.RoundY:=MenuBorderRadii[j];
-  mLabel.FontEx.Color:=MenuItemColors[j];
+  mLabel.FontEx.Color:=MenuFGColors[j];
 
 
 
@@ -251,7 +247,7 @@ begin
     mLabel.Width  := mLabel.Font.GetTextWidth(mLabel.Caption) + 4;
     mLabel.Rounding.RoundX:=MenuBorderRadii[j];
     mLabel.Rounding.RoundY:=MenuBorderRadii[j];
-    mLabel.FontEx.Color:=MenuItemColors[j];
+    mLabel.FontEx.Color:=MenuFGColors[j];
 
 
     c := TBitmap.Create;

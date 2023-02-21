@@ -7,18 +7,22 @@ interface
 
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  TAdvancedMenu;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Menus,
+  BCLabel, TAdvancedMenu;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    BCLabel1: TBCLabel;
     Panel1: TPanel;
     procedure FormCreate(Sender: TObject);
+    procedure MenuItem1Click(Sender: TObject);
     procedure Panel1Click(Sender: TObject);
     procedure FileClick(Sender: TObject);
+    procedure Panel1GetDockCaption(Sender: TObject; AControl: TControl;
+      var ACaption: String);
   private
 
   public
@@ -83,8 +87,15 @@ begin
   }
 
   // MainMenu.add_mainMenuClickAction_byName('File', ta);
-  MainMenu.add_mainMenuSubMenu_byName('fileMenu', FileMenuItems, FileMenuItemNames);
+  MainMenu.add_mainMenuSubMenu_byName('fileMenu', FileMenuItems, FileMenuItemNames);                          // SUBMENU ADDED BUT WILL NOT RENDER
+  MainMenu.set_mainMenuItemClickAction_fromTemplate('fileMenu', 'show_subMenu');                              // ONCLICK SHOW SUBMENU, NO OTHER ACTION
+  MainMenu.set_mainMenuItemClickAction_fromTemplate('viewMenu', 'show_subMenu');                              // ONCLICK SHOW SUBMENU, NO OTHER ACTION
   // MainMenu.add_subMenuSubMenu_byName('newMenu', NewMenuItems);
+
+end;
+
+procedure TForm1.MenuItem1Click(Sender: TObject);
+begin
 
 end;
 
@@ -96,6 +107,12 @@ end;
 procedure TForm1.FileClick(Sender: TObject);
 begin
   showMessage('file clicked');
+end;
+
+procedure TForm1.Panel1GetDockCaption(Sender: TObject; AControl: TControl;
+  var ACaption: String);
+begin
+
 end;
 
 end.

@@ -8,9 +8,10 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls, ExtCtrls, dataTypes,BCLabel, bgraControls,BCTypes;
 type
 
-  TProcType = procedure(const AParm: Integer) of object; // Method type
-  TProcArray = array of TProcType; // Dynamic array
-  TProc           = procedure(AParm: TObject) of object;
+  TProcType     = procedure(const AParm: Integer) of object; // Method type
+  TProcArray    = array of TProcType; // Dynamic array
+  TProc         = procedure(AParm: TObject) of object;
+  TNodePtr      = ^dataTypes.stringNodeStruct;
   // tadvancedmenu.pas(281,24) Error: Incompatible types: got "Variant" expected "<;Register>"
 
   { TAdvancedMainMenu }
@@ -39,25 +40,48 @@ type
     heightPadding : Integer;
 
     mLabels       : Array of TBCLabel;
+    mPanels       : Array of TPanel;
 
     constructor Create();
 
     procedure create_mainMenu (var mainMenuItems : Array of String; var mainMenuNames : Array of String);
-    procedure render({var} parent : TForm);
+
+    function get_uniqueID() : Integer;
+    function check_existingMainMenu() : Integer;
+    procedure update_IDArray(ii_id : Integer);
+    procedure update_RenderItemFormatList(ii_id : Integer);
+    procedure update_RenderItemList(ii_id : Integer);
+    function locate_menuNode_byID(ii_id : Integer) : TNodePtr;
+    function locate_menuNode_byName(nm: String): TNodePtr;
+    procedure update_RenderItemActionList(ii_id : Integer);
+
+    procedure toggleSubMenu(Sender: TObject);
+    procedure changeBGColor(Sender:TObject);
+    procedure restoreBGColor(Sender:TObject);
+
+
+
+    procedure render({var} parent : TPanel);
+
+    procedure add_mainMenuSubMenu_byName(targetName : String; var items : Array of String; var itemNames : Array of String);
+
+
+    {
     procedure render_onPanel({var} parent: TPanel);
     procedure add_mainMenuActions(var actions : TProcArray);
     procedure add_mainMenuClickAction(var i: Integer; var action: TProc);
-    procedure add_mainMenuSubMenu_byName(targetName : String; var items : Array of String; var itemNames : Array of String);
+
     procedure set_mainMenuItemClickAction_fromTemplate(menuName : String; actionName : String);
-    procedure showSubMenu(Sender: TObject);
-    procedure changeBGColor(Sender:TObject);
-    procedure restoreBGColor(Sender:TObject);
+
     procedure render_subMenu_ofMainMenu(Sender : TObject);
     function extractMenuID(name : String): Integer;
 
+    }
+
+
   end;
-  function generateRandomNumber() : Integer  ;
-  function locateItem(needle: Integer; haystack : Array of Integer ) : Integer;
+  function generate_randomNumber() : Integer  ;
+  function locate_integerItem(needle: Integer; haystack : Array of Integer ) : Integer;
 
 implementation
 
@@ -79,6 +103,7 @@ begin
   //----------------------------   INITIALIZE CONTAINERS  ------------------------//
 
   MenuTree      := Nil;                                                           // PROBABLY unnecessary.
+  MenuTree      := dataTypes.tree_ofStrings.Create();                             // Create a new Menu Tree.
 
   SetLength(MenuItemIds,0);                                                       // PROBABLY unnecessary.
 
@@ -97,71 +122,427 @@ begin
 
   heightPadding := 8;                                                             // These values are used.
   widthPadding  := 8;
-end;
+end; //###########################################################################// End of Function
 
-procedure TAdvancedMainMenu.create_mainMenu(var mainMenuItems: array of String;
-  var mainMenuNames: array of String);
+procedure TAdvancedMainMenu.create_mainMenu(var mainMenuItems: array of String; var mainMenuNames: array of String);
 var
-  i               : Integer;
-  ii              : Integer;
-  ii_id           : Integer;
+  i             : Integer;                                                      // Here we have some dummy variables.
+  ii            : Integer;
+  ii_id         : Integer;
 begin
-  MenuTree      := dataTypes.tree_ofStrings.Create();                             // Create a Menu Tree.
-  for ii := 0 to length(mainMenuItems) -1 do
+
+  //-----------------------    If main menu exists, then exit       --------------// To create a new main menu, overwrite the existing or add items one by one
+
+  if ( check_existingMainMenu() = 1 ) then
   begin
-    ii_id       := currentID + 1;
+    Exit;
+  end;
+
+
+  //------    Otherwise Loop over everything that is being inserted       --------//
+
+  for ii := 0 to length(mainMenuItems) -1 do  // ---------------------------------// Loop over everything that is being inserted.
+  begin
+    ii_id       :=      get_uniqueID();  //---------------------------------------// Get new unique ID
+                                                                                  // This automatically updates all the necessary the ID flags
+
+
+
+    //-- Each string packed in a record, and appended to the doubly linked list --//
+
     menuTree.AppendString_asNode(mainMenuItems[ii], mainMenuNames[ii], ii_id);    // Inserts a Menu Item in the main double linked list with an Unique ID
 
-    // Append to Item ID
-    SetLength(MenuItemIDs, length(MenuItemIds)+1);
-    MenuItemIDs[length(MenuItemIds) - 1] := ii_id;
 
-    // Append to Fonts
-    SetLength(MenuItemFonts, length(MenuItemFonts) + 1);
-    MenuItemFonts[length(MenuItemFonts) -1]    := Screen.SystemFont;              // Added the SystemFont
 
-    // Append to Border Thickness
-    SetLength(MenuBorderThicknesses, length(MenuBorderThicknesses) + 1);
-    MenuBorderThicknesses[length(MenuBorderThicknesses) -1]:= 0;                  // Added the Border Thickness
+    //---------------------    Main ID list populated       ----------------------//
 
-    // Append to Border Radius
-    SetLength(MenuBorderRadii, length(MenuBorderRadii) + 1);
-    MenuBorderRadii[length(MenuBorderRadii) -1]:= 5;                              // Added the border radius
+    update_IDArray(ii_id) ; //----------------------------------------------------// Append to Item ID
 
-    // Append to BG Colors
-    SetLength(MenuBGColors, length(MenuBGColors) + 1);
-    MenuBGColors[length(MenuBGColors) -1]:= clForm;                               // Added the Form Background color (will also pick up the default)
 
-    // Append to FG Colors
-    SetLength(MenuFGColors, length(MenuFGColors) + 1);
-    MenuFGColors[length(MenuFGColors) -1]:= clWindowText;                         // Added the Form Background color (will also pick up the default)
 
-    // Append to Font Sizes
-    SetLength(MenuFontSizes, length(MenuFontSizes) + 1);
-    MenuFontSizes[length(MenuFontSizes) -1]:= 10;                                 // Added the SystemFont Size
+    //--------------    Render Item Format list populated       ------------------// Supply info such as color to Format the panels, the labels etc...
 
-    // Append to Font Weight
-    SetLength(MenuFontWeigths, length(MenuFontWeigths) + 1);
-    MenuFontWeigths[length(MenuFontWeigths) -1]:= 0;                              // Added the SystemFont Weight ->
-                                                                                  // 0 = normal,
-                                                                                  // 1 = Bold,                   2^0
-                                                                                  // 2 = Italic,                 2^1
-                                                                                  // 3 = Bold Italic,
-                                                                                  // 4 = UnderLine               2^2
-                                                                                  // 5 = Bold UnderLine
-                                                                                  // 6 = Italic Underline
-                                                                                  // 7 = Bold Italic UnderLine
-                                                                                  // 8 = Thin                    2^3
-                                                                                  // ETC
+    update_RenderItemFormatList(ii_id);
 
-    // append to autodraw
-    SetLength(MenuAutoDraw, length(MenuAutoDraw) + 1);
-    MenuAutoDraw[length(MenuAutoDraw) -1]:= True;                                 // Draw it Anyways - because its the main menu
 
-    currentID   := currentID + 1
+
+    //-----------------    Render Item list populated       ----------------------// Create the Label/Panel etc, but DONT render
+
+    update_RenderItemList(ii_id);
+
+
+
+    //-----------------    Action Item list populated       ----------------------// Insert Default Actions
+
+    update_RenderItemActionList(ii_id);
+
   end;
+end; //###########################################################################// End of Function
+
+
+
+procedure TAdvancedMainMenu.update_IDArray(ii_id: Integer); //--------------------// Just insert in the ID array
+begin
+  SetLength(MenuItemIDs, length(MenuItemIds)+1); //-------------------------------// Increase the container length by 1 : this creates one empty space at the end
+  MenuItemIDs[length(MenuItemIds) - 1] := ii_id; //-------------------------------// Insewrt new item at the end, in the newly created space.
+end; //###########################################################################// End of Function
+
+procedure TAdvancedMainMenu.update_RenderItemFormatList(ii_id: Integer);
+begin
+
+  //-----------------     Append to Array of Fonts      --------------------------//
+
+  SetLength(MenuItemFonts, length(MenuItemFonts) + 1);
+  MenuItemFonts[length(MenuItemFonts) -1]    := Screen.SystemFont; //-------------// Added the SystemFont
+
+
+  //-----------------     Append to Border Thickness    --------------------------//
+
+  SetLength(MenuBorderThicknesses, length(MenuBorderThicknesses) + 1);
+  MenuBorderThicknesses[length(MenuBorderThicknesses) -1]:= 0; //-----------------// Added the Border Thickness
+
+
+  //-----------------     Append to Border Radius       --------------------------//
+
+  SetLength(MenuBorderRadii, length(MenuBorderRadii) + 1);
+  MenuBorderRadii[length(MenuBorderRadii) -1]:= 5; //-----------------------------// Added the border radius
+
+
+  //-----------------     Append to BG Colors           --------------------------//
+
+  SetLength(MenuBGColors, length(MenuBGColors) + 1);
+  MenuBGColors[length(MenuBGColors) -1]:= clDefault; //---------------------------// Added the Form Background color (will also pick up the default)
+
+
+  //-----------------     Append to FG Colors           --------------------------//
+
+  SetLength(MenuFGColors, length(MenuFGColors) + 1);
+  MenuFGColors[length(MenuFGColors) -1]:= clWindowText; //------------------------// Added the Form Background color (will also pick up the default)
+
+
+  //-----------------     Append to Font Sizes          --------------------------//
+
+  SetLength(MenuFontSizes, length(MenuFontSizes) + 1);
+  MenuFontSizes[length(MenuFontSizes) -1]:= 10; //--------------------------------// Added the SystemFont Size
+
+
+  //-----------------     Append to Font Weight         --------------------------//
+
+  SetLength(MenuFontWeigths, length(MenuFontWeigths) + 1);
+  MenuFontWeigths[length(MenuFontWeigths) -1]:= 0; //-----------------------------// Added the SystemFont Weight ->
+                                                                                // 0 = normal,
+                                                                                // 1 = Bold,                   2^0
+                                                                                // 2 = Italic,                 2^1
+                                                                                // 3 = Bold Italic,
+                                                                                // 4 = UnderLine               2^2
+                                                                                // 5 = Bold UnderLine
+                                                                                // 6 = Italic Underline
+                                                                                // 7 = Bold Italic UnderLine
+                                                                                // 8 = Thin                    2^3
+                                                                                // ETC
+
+end; //###########################################################################// End of Function
+
+procedure TAdvancedMainMenu.update_RenderItemList(ii_id: Integer);
+var
+  mPanel        : TPanel;
+  mLabel        : TBCLabel;
+  c             : TBitMap;
+
+  currNode      : ^dataTypes.stringNodeStruct;
+
+begin
+
+  //---------------------    Create the Display Items       ----------------------//
+
+  mPanel        := TPanel.create(nil); //-----------------------------------------// The main Panel (so that we can also add checkboxes and radios)
+  mPanel.Parent := nil;
+  mLabel        := TBCLabel.Create(mPanel); //------------------------------------// The label to contain the text of the menu item
+  mLabel.Parent := mPanel;             
+
+  currNode      := locate_menuNode_byID(ii_id); //--------------------------------// Found the entire node
+
+  //---------------------    Format the Display Items       ----------------------// Insert Default Actions
+
+  mLabel.Caption:= '  ' + currNode^.stringVal + '  '; //--------------------------// Caption
+  mPanel.Name   := currNode^.name + 'panel'; //-----------------------------------// The name
+  mLabel.Name   := currNode^.name ; //--------------------------------------------// The name of the label remains as the internal identifier
+  mPanel.Caption:= ''; //---------------------------------------------------------// Otherwise this will render the internal name on top of the text label
+  mPanel.Top    := heightPadding  ; //--------------------------------------------// Constant padding on the top. this is not user controllable
+  mPanel.BorderStyle:=bsNone;
+  mPanel.BevelOuter:=bvNone; //---------------------------------------------------// Otherwise, a border will be drawn
+
+  if ( length(mPanels) = 0) then
+  begin
+    mPanel.Left := 0;
+  end
+  else
+  begin
+    mPanel.Left := mPanels[length(mPanels) - 1].Left + mPanels[length(mPanels) - 1].Width + 0; // left of the entire containing panel
+  end;
+
+
+  mLabel.FontEx.Name := MenuItemFonts[ii_id].Name; //-----------------------------// Font is related to the label
+  mLabel.Height := mLabel.Font.GetTextHeight('AyTg') + 4; //----------------------// Label height
+  mPanel.Height := mLabel.Height; //----------------------------------------------// Panel height same as label height
+  mLabel.Rounding.RoundX:=MenuBorderRadii[ii_id]; //------------------------------// Rounding...
+  mLabel.Rounding.RoundY:=MenuBorderRadii[ii_id];
+  mLabel.FontEx.Color:=MenuFGColors[ii_id]; //------------------------------------// Font color
+  mLabel.Color  := MenuBGColors[ii_id];
+  mPanel.Color  := MenuBGColors[ii_id];;
+
+  c := TBitmap.Create;
+  c.Canvas.Font.Assign(Screen.SystemFont);
+  mLabel.Width  := c.Canvas.TextWidth(mLabel.Caption) + 4; //---------------------// Label width
+  mPanel.Width  := mLabel.Width; //-----------------------------------------------// panel width set to be the same
+  c.Free;
+
+
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+  //--------------- EXPANSION. IF checkbos/radio ... ADD THEM HERE ---------------//
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+
+  //---------------------    Insert into the array(s)       ----------------------// Insert into the arrays
+
+  SetLength(mLabels, length(mLabels) +1);
+  mLabels[length(mLabels) - 1] := mLabel;
+
+  SetLength(mPanels, length(mPanels) +1);
+  mPanels[length(mPanels) - 1] := mPanel;
+
+end; //###########################################################################// End of Function
+
+procedure TAdvancedMainMenu.update_RenderItemActionList(ii_id: Integer);
+var
+  currNode      : ^dataTypes.stringNodeStruct;
+  mLabel        : TBCLabel;
+  procMEnter    : TProc;
+  procMExit     : TProc;
+  procMClick    : TProc;
+begin
+
+  //------------------------    Extract the target       -------------------------//
+
+  mLabel        := mLabels[ii_id];
+
+
+  //----------------    Attach mouseEnter and exit procs       -------------------//
+
+  procMEnter    := @changeBGColor;
+  mLabel.OnMouseEnter:= procMEnter ;
+
+  procMExit     := @restoreBGColor;
+  mLabel.OnMouseLeave:= procMExit ;
+
+  procMClick    := @toggleSubMenu;
+  mLabel.OnClick:= procMClick;
+
+
+
+end; //###########################################################################// End of Function
+
+
+
+
+procedure TAdvancedMainMenu.render(parent: TPanel);
+var
+  mPanel        : TPanel;
+  i             : Integer;
+  nm            : String;
+  currNode      : TNodePtr;
+begin
+
+  for i := 0 to length(mPanels) -1 do
+  begin
+
+    nm          :=  mLabels[i].Name;
+    currNode    :=  locate_menuNode_byName(nm);
+
+    if (currNode^.Parent <> nil) then //------------------------------------------// If it has a parent, it can't be main menu
+    begin
+      continue; //----------------------------------------------------------------// Thus continue with the next one
+    end;
+
+    mPanel      := mPanels[i];
+    mPanel.Parent:=parent;
+
+  end;
+
+end; //###########################################################################// End of Function
+
+
+procedure TAdvancedMainMenu.add_mainMenuSubMenu_byName(targetName: String; var items: array of String; var itemNames: array of String);
+var
+  ii            : Integer;
+  currNode      : ^dataTypes.stringNodeStruct;
+  ii_id         : Integer;
+
+begin
+
+  //--------------------   Locate the Menu Item by name       --------------------//
+
+  currNode      := locate_menuNode_byName(targetName); //-------------------------// We can use the function we wrote
+
+
+  if currNode = nil then Exit; //-------------------------------------------------// Did not Find it
+
+  for ii := 0 to length(items) -1 do
+  begin
+    ii_id       := get_uniqueID(); //---------------------------------------------// Again, use a functionin stead
+
+    menuTree.AppendString_asSubNode_byName(targetName, items[ii], itemNames[ii], ii_id);
+
+
+
+    //---------------------    Main ID list populated       ----------------------//
+
+    update_IDArray(ii_id) ; //----------------------------------------------------// Append to Item ID
+
+
+
+    //--------------    Render Item Format list populated       ------------------// Supply info such as color to Format the panels, the labels etc...
+
+    update_RenderItemFormatList(ii_id);
+
+
+
+    //-----------------    Render Item list populated       ----------------------// Create the Label/Panel etc, but DONT render
+
+    update_RenderItemList(ii_id);
+
+
+
+    //-----------------    Action Item list populated       ----------------------// Insert Default Actions
+
+    update_RenderItemActionList(ii_id);
+
+
+  end;
+
+
+end; //###########################################################################// End of Function
+
+
+procedure TAdvancedMainMenu.changeBGColor(Sender: TObject);
+begin
+
+  (Sender as TBCLabel).Background.Color := clActiveCaption;
+  (Sender as TBCLabel).Background.Style := bbsColor;
 end;
 
+procedure TAdvancedMainMenu.restoreBGColor(Sender: TObject);
+begin
+  (Sender as TBCLabel).Background.Color := clBackground;
+  (Sender as TBCLabel).Background.Style := bbsColor;
+end;
+
+procedure TAdvancedMainMenu.toggleSubMenu(Sender: TObject);
+var
+  i             : Integer;
+  nm            : String;
+  currNode      : TNodePtr;
+  chldNode      : TNodePtr;
+  lst           : String;
+
+  mPanel        : TPanel;
+  cPanel        : TPanel;
+  mLabel        : TBCLabel;
+  c             : TBitMap;
+
+  ii_id         : Integer;
+  tHeight       : Integer;
+  lHeight       : Integer;
+  padding       : Integer;
+  maxWidth      : Integer;
+begin
+
+  //-----------    Get the name of the sender and the sender itself      ---------//
+
+  nm            :=  (Sender as TBCLabel).Name;
+  currNode      :=  locate_menuNode_byName(nm);
+
+
+
+  //--------------    Ensure that there will be no Index Error      --------------//
+
+  if ( length(currNode^.Children) = 0) then
+  begin
+    Exit;
+  end;
+
+
+  //------------------   Add a Panel to hold the subMenus      -------------------//
+
+  mPanel        := TPanel.create((Sender as TBCLabel).Parent.Parent.Parent); //----------// The holding panel, will be a child of the great-grandparent
+                                                                                  // of the  event sender label
+                                                                                  // The parent of the sender is another container panel.
+                                                                                  // The grandparent is the big panel that emulates a complete menu bar
+                                                                                  // The great grandparent is correct target, where the grandparent is attached.
+                                                                                  // The great grandparent is the application form
+  mPanel.Parent := (Sender as TBCLabel).Parent.Parent.Parent;
+  mPanel.Left   := (Sender as TBCLabel).Parent.Left;
+  mPanel.Top    := (Sender as TBCLabel).Parent.Parent.Top + (Sender as TBCLabel).Parent.Parent.Height;
+  mPanel.Color  := clMenuBar;
+
+  tHeight       := 0;
+  mPanel.Height :=  tHeight;
+  lHeight       := 0;
+  padding       := 2;
+  maxWidth      := 150;
+  mPanel.Width  := maxWidth;
+
+  //--------------------    Cycle through the Children      ----------------------//
+
+  for i := 0 to length(currNode^.Children) - 1 do
+  begin
+    chldNode    := currNode^.Children[i];
+
+    ii_id       := locate_integerItem(chldNode^.ID, MenuItemIds);
+    cPanel      := mPanels[ii_id];
+
+    cPanel.Parent:= mPanel;
+
+    cPanel.Left := 0 + padding;
+    cPanel.Top:= lHeight + padding;
+    lHeight   := cPanel.Top + cPanel.Height;
+
+    tHeight     := tHeight + cPanel.Height + padding;
+    mPanel.Height:=tHeight ;
+
+    if ( (cPanel.Width +2 * padding) > maxWidth) then
+    begin
+      maxWidth  := cPanel.Width +2 * padding;
+      mPanel.Width:= maxWidth;
+    end;
+
+  end;
+
+  mPanel.Height:=mPanel.Height + padding;
+
+
+  // TODO Turn Off Other Open Submenus
+  // TODO CHANGE MAIN MENU BACKGROUND
+  // TODO ADD A SINGLE LINE UNDER MAIN MENU
+  // TODO ADD SUBMENU BORDER
+  // TODO ADD SUBMENU IMAGE AND SHORTCUT PALCEHOLDER
+
+  // TODO ADD Keyboard shortcuts
+  // TODO Make The Menus wide
+  // TODO
+end;
+
+
+
+
+
+
+
+
+
+
+ {
 procedure TAdvancedMainMenu.render({var} parent: TForm);                          // Only draw the main menu. so do not consider children of any node of the menu tree
 var
   mLabel        : TBCLabel;
@@ -273,6 +654,89 @@ begin
   // add font size
   // ADD font color
 
+end;
+
+}
+
+{
+
+
+
+procedure TAdvancedMainMenu.showSubMenu(Sender: TObject);
+var
+  i               : Integer;
+  currNode        : ^dataTypes.stringNodeStruct;
+begin
+  i               := -1;
+
+  currNode        :=  menuTree.root;
+
+  while (True) do
+  begin
+
+    // showMessage('checking item : ' + currNode^.name + ' vs ' + name);
+    if (currNode^.name = name) then
+    begin
+      i           := currNode^.ID;                                                // name found
+      break;                                                                      // break while loop
+    end;
+                                                                                  // if at this point, then did not find a match
+
+    if ( length(currNode^.Children) <> 0) then                                    // if there is a child
+    begin
+      currNode    := currNode^.Children[0];                                       // take the child and loop back
+      continue;
+    end;
+                                                                                  // if at this point, then no child
+
+    if (currNode^.next <> nil) then                                               // if can take the next, take the next
+    begin
+      currNode    := currNode^.next;
+      continue;
+    end;
+                                                                                  // if at this point, then no next either
+
+    if (currNode^.Parent <> nil) then
+    begin
+      currNode    := currNode^.Parent;
+      if (currNode^.next <> nil) then
+      begin
+        currNode  := currNode^.next;
+        continue;
+      end;
+    end;
+
+    break;
+
+  end;
+
+
+  Result          := i;
+end;
+
+
+
+
+procedure TAdvancedMainMenu.render_subMenu_ofMainMenu(Sender: TObject);
+var
+  j                             : Integer;
+  menuName                      : String;
+  currNode                      : ^dataTypes.stringNodeStruct;
+begin
+
+  menuName        := (Sender as TBCLabel).name;                                   // Searching for a
+  // currNode        := dataTypes.get_treeNode_byName(menuName);
+
+  // subMenus        := currNode^.Children[0];
+  // renderSubmenus(submenus)
+
+  // showMessage((Sender as TBCLabel).name);
+  // showMessage('default onclick action');
+
+
+  //j               := extractMenuID(menuName);
+  // find where in the master menu id list j matches an element
+  // j               := locateItem(j, MenuItemIds);
 end;
 
 procedure TAdvancedMainMenu.render_onPanel({var} parent: TPanel);                 // Only draw the main menu. so do not consider children of any node of the menu tree
@@ -393,65 +857,7 @@ begin
   mLabels[ii].OnClick:=action;
 end;
 
-procedure TAdvancedMainMenu.add_mainMenuSubMenu_byName(targetName: String;
-  var items: array of String; var itemNames: array of String);
-var
-  ii            : Integer;
-  idx           : Integer;
-  currNode      : ^dataTypes.stringNodeStruct;
-  nameFound     : Boolean;
-  ii_id         : Integer;
 
-begin
-
-  currNode := menuTree.root;
-
-  nameFound:= False;
-
-  while not (currNode^.next = nil) do
-  begin
-                                                                                  // showMessage(currNode^.name + ' --> ' + targetName);
-    if (currNode^.name = targetName) then
-    begin
-      nameFound:= True;
-      Break;
-    end
-    else
-    begin
-      currNode := currNode^.next;
-    end;
-  end;
-
-
-
-  if not nameFound then Exit;
-
-  for ii := 0 to length(items) -1 do
-  begin
-    ii_id       := currentID + 1;
-    menuTree.AppendString_asSubNode_byName(targetName, items[ii], itemNames[ii], ii_id);
-    // Append to Item ID
-    SetLength(MenuItemIDs, length(MenuItemIds)+1);
-    MenuItemIDs[length(MenuItemIds) - 1] := ii_id;
-
-  end;
-
-  currentID     := currentID + 1   ;
-
-  // ONCE THIS IS DONE
-  // ADD A RENDER MENU ACTION to CURRNODE
-
-                                                                                  // showMessage(currNode^.name);
-
-  ii_id         := currNode^.ID;
-  for ii:= 0 to length (MenuItemIds) do
-  begin
-    if MenuItemIds[ii] = ii_id then break;
-  end;
-
-
-
-end;
 
 procedure TAdvancedMainMenu.set_mainMenuItemClickAction_fromTemplate(menuName: String; actionName: String);
 var
@@ -463,7 +869,7 @@ begin
            j      := extractMenuID(menuName);
 
            // find where in the master menu id list j matches an element
-           j      := locateItem(j, MenuItemIds);
+           j      := locate_integerItem(j, MenuItemIds);
            mLabels[j].OnClick:=@render_subMenu_ofMainMenu;
            mLabels[j].Name   :=menuName;
 
@@ -605,81 +1011,105 @@ begin
   panel1.Width    := maxW + 15;
 end;
 
-procedure TAdvancedMainMenu.changeBGColor(Sender: TObject);
-begin
 
-  (Sender as TBCLabel).Background.Color := clActiveCaption;
-  (Sender as TBCLabel).Background.Style := bbsColor;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function TAdvancedMainMenu.get_uniqueID: Integer;
+begin
+  currentID    := currentID + 1; //-----------------------------------------------// increment current ID
+  Result       := currentID - 1; //-----------------------------------------------// new id is one more than the current ID
+                                                                                  // We have to increment the current ID first, because
+                                                                                  // the last line of the function should contain
+                                                                                  // the special variable Result
+                                                                                  // -1. because we want to return the value that was
+                                                                                  // previously in it
+
 end;
 
-procedure TAdvancedMainMenu.restoreBGColor(Sender: TObject);
-begin
-  (Sender as TBCLabel).Background.Color := clBackground;
-  (Sender as TBCLabel).Background.Style := bbsColor;
-end;
-
-procedure TAdvancedMainMenu.render_subMenu_ofMainMenu(Sender: TObject);
+function TAdvancedMainMenu.check_existingMainMenu: Integer;
 var
-  j                             : Integer;
-  menuName                      : String;
-  currNode                      : ^dataTypes.stringNodeStruct;
+  res           : Integer; //-----------------------------------------------------// Track whether found
 begin
-
-  menuName        := (Sender as TBCLabel).name;                                   // Searching for a
-  // currNode        := dataTypes.get_treeNode_byName(menuName);
-
-  // subMenus        := currNode^.Children[0];
-  // renderSubmenus(submenus)
-
-  // showMessage((Sender as TBCLabel).name);
-  // showMessage('default onclick action');
-
-
-  //j               := extractMenuID(menuName);
-  // find where in the master menu id list j matches an element
-  // j               := locateItem(j, MenuItemIds);
+  res           := 0; //----------------------------------------------------------// Is not found
+  if ( MenuTree.root <> nil) then //----------------------------------------------// if root is not nil, then
+  begin
+    res         := 1; //----------------------------------------------------------// the menu tree must have created already
+  end;
+  Result        := res; //--------------------------------------------------------// return via result keyword
 end;
 
-function TAdvancedMainMenu.extractMenuID(name: String): Integer;
+function TAdvancedMainMenu.locate_menuNode_byID(ii_id: Integer): TNodePtr;
 var
-  i               : Integer;
-  currNode        : ^dataTypes.stringNodeStruct;
+  i             : Integer;
+  currNode      : ^dataTypes.stringNodeStruct;
+  resNode       : ^dataTypes.stringNodeStruct;
 begin
-  i               := -1;
+  i             := -1;
 
-  currNode        :=  menuTree.root;
+  currNode      :=  menuTree.root;
+  resNode       :=  nil;
 
   while (True) do
   begin
 
     // showMessage('checking item : ' + currNode^.name + ' vs ' + name);
-    if (currNode^.name = name) then
+    if (currNode^.ID = ii_id) then
     begin
-      i           := currNode^.ID;                                                // name found
+      resNode   := currNode;                                                    // name found
       break;                                                                      // break while loop
     end;
                                                                                   // if at this point, then did not find a match
 
     if ( length(currNode^.Children) <> 0) then                                    // if there is a child
     begin
-      currNode    := currNode^.Children[0];                                       // take the child and loop back
+      currNode  := currNode^.Children[0];                                       // take the child and loop back
       continue;
     end;
                                                                                   // if at this point, then no child
 
     if (currNode^.next <> nil) then                                               // if can take the next, take the next
     begin
-      currNode    := currNode^.next;
+      currNode  := currNode^.next;
       continue;
     end;
                                                                                   // if at this point, then no next either
 
     if (currNode^.Parent <> nil) then
     begin
-      currNode    := currNode^.Parent;
+      currNode  := currNode^.Parent;
       if (currNode^.next <> nil) then
       begin
-        currNode  := currNode^.next;
+        currNode:= currNode^.next;
         continue;
       end;
     end;
@@ -689,15 +1119,73 @@ begin
   end;
 
 
-  Result          := i;
+  Result        := resNode;
+
 end;
 
-function generateRandomNumber() : Integer   ;
+function TAdvancedMainMenu.locate_menuNode_byName(nm: String): TNodePtr;
+var
+  i             : Integer;
+  currNode      : ^dataTypes.stringNodeStruct;
+  resNode       : ^dataTypes.stringNodeStruct;
+begin
+  i             := -1;
+
+  currNode      :=  menuTree.root;
+  resNode       :=  nil;
+
+  while (True) do
+  begin
+
+    // showMessage('checking item : ' + currNode^.name + ' vs ' + name);
+    if (currNode^.name = nm) then
+    begin
+      resNode   := currNode;                                                    // name found
+      break;                                                                      // break while loop
+    end;
+                                                                                  // if at this point, then did not find a match
+
+    if ( length(currNode^.Children) <> 0) then                                    // if there is a child
+    begin
+      currNode  := currNode^.Children[0];                                       // take the child and loop back
+      continue;
+    end;
+                                                                                  // if at this point, then no child
+
+    if (currNode^.next <> nil) then                                               // if can take the next, take the next
+    begin
+      currNode  := currNode^.next;
+      continue;
+    end;
+                                                                                  // if at this point, then no next either
+
+    if (currNode^.Parent <> nil) then
+    begin
+      currNode  := currNode^.Parent;
+      if (currNode^.next <> nil) then
+      begin
+        currNode:= currNode^.next;
+        continue;
+      end;
+    end;
+
+    break;
+
+  end;
+
+
+  Result        := resNode;
+
+end;
+
+
+
+function generate_randomNumber() : Integer   ;
 begin
   Result        := 0;
 end;
 
-function locateItem(needle: Integer; haystack : Array of Integer ) : Integer;
+function locate_integerItem(needle: Integer; haystack : Array of Integer ) : Integer;
 var
   i                     :  Integer;
   j                     :  Integer;
@@ -716,6 +1204,4 @@ begin
 end;
 
 end.
-
-
 

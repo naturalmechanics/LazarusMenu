@@ -69,9 +69,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="58"/>
-        <CursorPos X="58" Y="92"/>
+        <TopLine Value="77"/>
+        <CursorPos X="27" Y="96"/>
         <UsageCount Value="218"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -82,7 +81,7 @@
         <UnitName Value="dataTypes"/>
         <EditorIndex Value="1"/>
         <TopLine Value="306"/>
-        <CursorPos X="122" Y="333"/>
+        <CursorPos X="16" Y="331"/>
         <FoldState Value=" TCIP3 T3kX0*X"/>
         <UsageCount Value="218"/>
         <Loaded Value="True"/>
@@ -91,10 +90,11 @@
         <Filename Value="tadvancedmenu.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TAdvancedMenu"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="137"/>
-        <CursorPos X="101" Y="27"/>
-        <FoldState Value=" T3n00%221 pkZoT05122 PNj60x"/>
+        <TopLine Value="362"/>
+        <CursorPos X="56" Y="437"/>
+        <FoldState Value=" T3j30Z01121113 pib:B0A212 PidkC0 TLtS1{X1 PpBjU0S"/>
         <UsageCount Value="218"/>
         <Loaded Value="True"/>
       </Unit>
@@ -103,17 +103,138 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="3500"/>
         <CursorPos Y="3520"/>
-        <UsageCount Value="37"/>
+        <UsageCount Value="32"/>
       </Unit>
       <Unit>
         <Filename Value="../menu_Object/unit1.lfm"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="15"/>
-        <UsageCount Value="27"/>
+        <UsageCount Value="22"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit>
     </Units>
-    <JumpHistory HistoryIndex="-1"/>
+    <JumpHistory HistoryIndex="29">
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="808" TopLine="660"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="844" Column="41" TopLine="351"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="71" Column="27" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="389" Column="33" TopLine="356"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="430" Column="35" TopLine="397"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="497" Column="37" TopLine="464"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="687" Column="35" TopLine="487"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="844" Column="41" TopLine="811"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="57" Column="20" TopLine="33"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="379" Column="3" TopLine="488"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="424" Column="26" TopLine="404"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="465" Column="28" TopLine="432"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="587" Column="31" TopLine="554"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="778" Column="28" TopLine="578"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="412" Column="7" TopLine="404"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="462" Column="23" TopLine="434"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="470" Column="34" TopLine="433"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="471" Column="38" TopLine="433"/>
+      </Position>
+      <Position>
+        <Filename Value="datatypes.pas"/>
+        <Caret Line="342" Column="111" TopLine="308"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="473" Column="27" TopLine="473"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="500" Column="35" TopLine="472"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="77" Column="77" TopLine="62"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="78" Column="77" TopLine="63"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="79" Column="77" TopLine="64"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="80" Column="77" TopLine="65"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="81" Column="77" TopLine="66"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="94" Column="16" TopLine="67"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="96" Column="25" TopLine="68"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="349" Column="50" TopLine="305"/>
+      </Position>
+      <Position>
+        <Filename Value="tadvancedmenu.pas"/>
+        <Caret Line="64" Column="43" TopLine="39"/>
+      </Position>
+    </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
       <Modes ActiveMode=""/>

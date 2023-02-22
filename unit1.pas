@@ -16,7 +16,15 @@ type
 
   TForm1 = class(TForm)
     BCLabel1: TBCLabel;
+    BCLabel2: TBCLabel;
+    BCLabel3: TBCLabel;
+    MainMenu1: TMainMenu;
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
     Panel1: TPanel;
+    Panel2: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure Panel1Click(Sender: TObject);
@@ -53,6 +61,9 @@ var
   FileMenuItems : Array of String;
   FileMenuItemNames:Array of String;
 
+  EditMenuItems : Array of String;
+  EditMenuItemNames:Array of String;
+
   NewMenuItems  : Array of String;
   NewMenuItemNames:Array of String;
 
@@ -64,19 +75,26 @@ begin
   MainMenu      := TAdvancedMenu.TAdvancedMainMenu.Create();
   MainMenu.create_mainMenu(MainMenuItems, MainMenuNames);
 
-  mForm         := Form1;
-  MainMenu.render(Form1);
-
-  mPanel        := Panel1;
-  MainMenu.render_onPanel(Panel1);
 
   FileMenuItems := ['New', 'Open', 'Save', 'Import', 'Export', 'Print', 'Send', 'Close', 'Quit'];
   FileMenuItemNames:=['newMenu', 'openMenu', 'saveMenu', 'importMenu', 'exportMenu', 'printMenu', 'sendMenu', 'closeMenu', 'quitMenu' ];
+
+  EditMenuItems := ['Cut', 'Copy', 'Paste', 'undo', 'redo'];
+  EditMenuItemNames:=['cutMenu', 'copyMenu', 'pasteMenu', 'undoMenu', 'redoMenu'];
+
+  MainMenu.add_mainMenuSubMenu_byName('fileMenu', FileMenuItems, FileMenuItemNames);  // SUBMENU ADDED BUT WILL NOT RENDER
+  MainMenu.add_mainMenuSubMenu_byName('editMenu', EditMenuItems, EditMenuItemNames);  // SUBMENU ADDED BUT WILL NOT RENDER
+
 
   NewMenuItems  := ['Blank Document', 'From Templates'];
   NewMenuItemNames:=['blankDocumentMenu', 'fromTemplateMenu'];
 
   OpenMenuItems := ['Open Recents', 'Open Existing Document'];
+
+
+  mForm         := Form1;
+  mPanel        := Panel2;
+  MainMenu.render(mPanel);
 
 
   {
@@ -87,9 +105,9 @@ begin
   }
 
   // MainMenu.add_mainMenuClickAction_byName('File', ta);
-  MainMenu.add_mainMenuSubMenu_byName('fileMenu', FileMenuItems, FileMenuItemNames);                          // SUBMENU ADDED BUT WILL NOT RENDER
-  MainMenu.set_mainMenuItemClickAction_fromTemplate('fileMenu', 'show_subMenu');                              // ONCLICK SHOW SUBMENU, NO OTHER ACTION
-  MainMenu.set_mainMenuItemClickAction_fromTemplate('viewMenu', 'show_subMenu');                              // ONCLICK SHOW SUBMENU, NO OTHER ACTION
+  //
+  // MainMenu.set_mainMenuItemClickAction_fromTemplate('fileMenu', 'show_subMenu');                              // ONCLICK SHOW SUBMENU, NO OTHER ACTION
+  // MainMenu.set_mainMenuItemClickAction_fromTemplate('viewMenu', 'show_subMenu');                              // ONCLICK SHOW SUBMENU, NO OTHER ACTION
   // MainMenu.add_subMenuSubMenu_byName('newMenu', NewMenuItems);
 
 end;

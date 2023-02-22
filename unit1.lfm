@@ -1,11 +1,12 @@
 object Form1: TForm1
-  Left = 675
+  Left = 648
   Height = 875
-  Top = 120
+  Top = 95
   Width = 1080
   Caption = 'Form1'
-  ClientHeight = 875
+  ClientHeight = 845
   ClientWidth = 1080
+  Menu = MainMenu1
   OnCreate = FormCreate
   LCLVersion = '2.2.4.0'
   object Panel1: TPanel
@@ -13,16 +14,20 @@ object Form1: TForm1
     Height = 90
     Top = 416
     Width = 809
+    BevelOuter = bvNone
     Caption = 'Panel1'
+    Color = clMenuBar
+    ParentColor = False
     TabOrder = 0
     OnClick = Panel1Click
     OnGetDockCaption = Panel1GetDockCaption
   end
   object BCLabel1: TBCLabel
     Left = 231
-    Height = 18
+    Height = 49
     Top = 200
-    Width = 57
+    Width = 82
+    AutoSize = False
     Background.Color = clMenuHighlight
     Background.Gradient1.StartColor = clWhite
     Background.Gradient1.EndColor = clBlack
@@ -42,8 +47,10 @@ object Form1: TForm1
     Background.Style = bbsColor
     Border.Style = bboNone
     Caption = 'BCLabel1'
-    FontEx.Color = clDefault
+    FontEx.Color = clWindowText
     FontEx.FontQuality = fqSystemClearType
+    FontEx.Height = 20
+    FontEx.Name = 'Quivira'
     FontEx.Shadow = False
     FontEx.ShadowRadius = 5
     FontEx.ShadowOffsetX = 5
@@ -51,5 +58,106 @@ object Form1: TForm1
     FontEx.Style = []
     Rounding.RoundX = 1
     Rounding.RoundY = 1
+  end
+  object BCLabel2: TBCLabel
+    Left = 344
+    Height = 49
+    Top = 200
+    Width = 200
+    AutoSize = False
+    Background.Color = clBackground
+    Background.Gradient1.StartColor = clWhite
+    Background.Gradient1.EndColor = clBlack
+    Background.Gradient1.GradientType = gtLinear
+    Background.Gradient1.Point1XPercent = 0
+    Background.Gradient1.Point1YPercent = 0
+    Background.Gradient1.Point2XPercent = 0
+    Background.Gradient1.Point2YPercent = 100
+    Background.Gradient2.StartColor = clWhite
+    Background.Gradient2.EndColor = clBlack
+    Background.Gradient2.GradientType = gtLinear
+    Background.Gradient2.Point1XPercent = 0
+    Background.Gradient2.Point1YPercent = 0
+    Background.Gradient2.Point2XPercent = 0
+    Background.Gradient2.Point2YPercent = 100
+    Background.Gradient1EndPercent = 35
+    Background.Style = bbsColor
+    Border.Style = bboNone
+    Caption = 'BCLabel2'
+    FontEx.Color = clMenuText
+    FontEx.FontQuality = fqSystemClearType
+    FontEx.Height = 20
+    FontEx.Name = 'Adamina'
+    FontEx.Shadow = False
+    FontEx.ShadowRadius = 5
+    FontEx.ShadowOffsetX = 5
+    FontEx.ShadowOffsetY = 5
+    FontEx.Style = []
+    Rounding.RoundX = 1
+    Rounding.RoundY = 1
+  end
+  object BCLabel3: TBCLabel
+    Left = 544
+    Height = 49
+    Top = 200
+    Width = 200
+    AutoSize = False
+    Background.Color = clMenuHighlight
+    Background.Gradient1.StartColor = clWhite
+    Background.Gradient1.EndColor = clBlack
+    Background.Gradient1.GradientType = gtLinear
+    Background.Gradient1.Point1XPercent = 0
+    Background.Gradient1.Point1YPercent = 0
+    Background.Gradient1.Point2XPercent = 0
+    Background.Gradient1.Point2YPercent = 100
+    Background.Gradient2.StartColor = clWhite
+    Background.Gradient2.EndColor = clBlack
+    Background.Gradient2.GradientType = gtLinear
+    Background.Gradient2.Point1XPercent = 0
+    Background.Gradient2.Point1YPercent = 0
+    Background.Gradient2.Point2XPercent = 0
+    Background.Gradient2.Point2YPercent = 100
+    Background.Gradient1EndPercent = 35
+    Background.Style = bbsColor
+    Border.Style = bboNone
+    Caption = 'BCLabel3'
+    FontEx.Color = clInfoText
+    FontEx.FontQuality = fqSystemClearType
+    FontEx.Height = 20
+    FontEx.Name = 'Timoroman'
+    FontEx.Shadow = False
+    FontEx.ShadowRadius = 5
+    FontEx.ShadowOffsetX = 5
+    FontEx.ShadowOffsetY = 5
+    FontEx.Style = []
+    Rounding.RoundX = 1
+    Rounding.RoundY = 1
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 32
+    Top = 0
+    Width = 1080
+    BevelOuter = bvNone
+    ParentColor = False
+    TabOrder = 1
+    OnClick = Panel1Click
+    OnGetDockCaption = Panel1GetDockCaption
+  end
+  object MainMenu1: TMainMenu
+    Left = 504
+    Top = 384
+    object MenuItem1: TMenuItem
+      Caption = 'MenuItem1'
+      object MenuItem2: TMenuItem
+        Caption = 'MenuItem2'
+      end
+      object MenuItem3: TMenuItem
+        Caption = 'MenuItem3'
+      end
+      object MenuItem4: TMenuItem
+        Caption = 'MenuItem4'
+      end
+    end
   end
 end

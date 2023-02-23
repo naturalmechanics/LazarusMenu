@@ -15,6 +15,8 @@ object Form1: TForm1
     Top = 416
     Width = 809
     BevelOuter = bvNone
+    BorderWidth = 1
+    BorderStyle = bsSingle
     Caption = 'Panel1'
     Color = clMenuBar
     ParentColor = False
@@ -139,10 +141,109 @@ object Form1: TForm1
     Top = 0
     Width = 1080
     BevelOuter = bvNone
+    Color = clMenuBar
     ParentColor = False
     TabOrder = 1
     OnClick = Panel1Click
     OnGetDockCaption = Panel1GetDockCaption
+  end
+  object CheckBox1: TCheckBox
+    Left = 246
+    Height = 22
+    Top = 289
+    Width = 96
+    Caption = 'CheckBox1'
+    TabOrder = 2
+  end
+  object BCPanel1: TBCPanel
+    Left = 280
+    Height = 50
+    Top = 64
+    Width = 170
+    Background.Color = clInactiveCaption
+    Background.Gradient1.StartColor = clWhite
+    Background.Gradient1.EndColor = clBlack
+    Background.Gradient1.GradientType = gtLinear
+    Background.Gradient1.Point1XPercent = 0
+    Background.Gradient1.Point1YPercent = 0
+    Background.Gradient1.Point2XPercent = 0
+    Background.Gradient1.Point2YPercent = 100
+    Background.Gradient2.StartColor = clWhite
+    Background.Gradient2.EndColor = clBlack
+    Background.Gradient2.GradientType = gtLinear
+    Background.Gradient2.Point1XPercent = 0
+    Background.Gradient2.Point1YPercent = 0
+    Background.Gradient2.Point2XPercent = 0
+    Background.Gradient2.Point2YPercent = 100
+    Background.Gradient1EndPercent = 35
+    Background.Style = bbsColor
+    BevelInner = bvNone
+    BevelOuter = bvNone
+    BevelWidth = 0
+    Border.Color = clGrayText
+    Border.LightOpacity = 0
+    Border.Style = bboSolid
+    BorderBCStyle = bpsBorder
+    Caption = 'BCPanel1'
+    FontEx.Color = clDefault
+    FontEx.FontQuality = fqSystemClearType
+    FontEx.Shadow = False
+    FontEx.ShadowRadius = 5
+    FontEx.ShadowOffsetX = 5
+    FontEx.ShadowOffsetY = 5
+    FontEx.Style = []
+    ParentBackground = False
+    Rounding.RoundX = 1
+    Rounding.RoundY = 1
+    TabOrder = 3
+  end
+  object Image1: TImage
+    Left = 105
+    Height = 90
+    Top = 303
+    Width = 90
+    Picture.Data = {
+      1754506F727461626C654E6574776F726B477261706869637501000089504E47
+      0D0A1A0A0000000D49484452000000320000003208060000001E3F88B1000000
+      097048597300000B1300000B1301009A9C180000012749444154789CED98416A
+      C3301045DFB6749D3B8442AF9365C80D7A9EAE0A394A4C2E1008B943D7A5DB5F
+      0C0E84408C6C8FA692320FB4F0C223BFE87B640582BA38022A64744B4454D898
+      CDE2024628440662458C5144EB19A32587D6AA1079C66879A010696D4552A8A2
+      6B352BB2075EF147D6227DB10BF06E59F4BF4404FC021F968513E735E33ED75E
+      51532E912DF0E31835E512E97903CEC3752FB55BF04746672DA289ADF205F84C
+      8C9A6BFBD5CC9E9F12B547F7661599C31A388D74B56A447A56C0F74D9D0D158A
+      AC4B5C11B5F28EA8F6AE95731FE946240E13E635E15A707713A5F3209513E512
+      4989528E79CD0B36F1F57B69E13CF2D5CA097149CB2EAAFD562B228F5FC2E339
+      1422B628566420A2658C225AC67B84C75E33FB0CE13D0EE38F1A50147FFC1E16
+      74D7CD48FE0000000049454E44AE426082
+    }
+  end
+  object StaticText1: TStaticText
+    Left = 924
+    Height = 17
+    Top = 459
+    Width = 65
+    Caption = 'StaticText1'
+    TabOrder = 4
+  end
+  object ColorBox1: TColorBox
+    Left = 873
+    Height = 32
+    Top = 229
+    Width = 100
+    ItemHeight = 20
+    OnChange = ColorBox1Change
+    TabOrder = 5
+  end
+  object Label1: TLabel
+    Left = 688
+    Height = 56
+    Top = 280
+    Width = 321
+    AutoSize = False
+    Caption = 'Label1'
+    ParentColor = False
+    OnClick = Label1Click
   end
   object MainMenu1: TMainMenu
     Left = 504

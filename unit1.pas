@@ -8,7 +8,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Menus,
-  BCLabel, TAdvancedMenu;
+  StdCtrls, BCLabel, BCPanel, TAdvancedMenu, Themes, ColorBox;
 
 type
 
@@ -18,6 +18,11 @@ type
     BCLabel1: TBCLabel;
     BCLabel2: TBCLabel;
     BCLabel3: TBCLabel;
+    BCPanel1: TBCPanel;
+    CheckBox1: TCheckBox;
+    ColorBox1: TColorBox;
+    Image1: TImage;
+    Label1: TLabel;
     MainMenu1: TMainMenu;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
@@ -25,7 +30,10 @@ type
     MenuItem4: TMenuItem;
     Panel1: TPanel;
     Panel2: TPanel;
+    StaticText1: TStaticText;
+    procedure ColorBox1Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure Label1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure Panel1Click(Sender: TObject);
     procedure FileClick(Sender: TObject);
@@ -85,6 +93,12 @@ begin
   MainMenu.add_mainMenuSubMenu_byName('fileMenu', FileMenuItems, FileMenuItemNames);  // SUBMENU ADDED BUT WILL NOT RENDER
   MainMenu.add_mainMenuSubMenu_byName('editMenu', EditMenuItems, EditMenuItemNames);  // SUBMENU ADDED BUT WILL NOT RENDER
 
+  // MainMenu.add_subMenuCheckBox('newMenu', True);
+
+  // MainMenu.add_subMenuPicture('newMenu', 'new.png');
+  // MainMenu.add_subMenuPicture('newMenu', 'open.png');
+
+
 
   NewMenuItems  := ['Blank Document', 'From Templates'];
   NewMenuItemNames:=['blankDocumentMenu', 'fromTemplateMenu'];
@@ -110,6 +124,22 @@ begin
   // MainMenu.set_mainMenuItemClickAction_fromTemplate('viewMenu', 'show_subMenu');                              // ONCLICK SHOW SUBMENU, NO OTHER ACTION
   // MainMenu.add_subMenuSubMenu_byName('newMenu', NewMenuItems);
 
+end;
+
+procedure TForm1.Label1Click(Sender: TObject);
+var
+  c       : TColor;
+begin
+  c := ColorToRGB(clMenuHighlight);
+  Label1.Caption := Format('R%d G%d B%d', [Red(c), Green(c), Blue(c)]);
+end;
+
+procedure TForm1.ColorBox1Change(Sender: TObject);
+var
+  c: TColor;
+begin
+  c := ColorToRGB(ColorBox1.Selected);
+  Label1.Caption := Format('R%d G%d B%d', [Red(c), Green(c), Blue(c)]);
 end;
 
 procedure TForm1.MenuItem1Click(Sender: TObject);

@@ -49,6 +49,19 @@ type
                                                                                   //// and, children[1] .prev = children [0]
       prev      : strNodePtr; // -------------------------------------------------// The previous menu in the same level
       next      : strNodePtr; // -------------------------------------------------// The next menu in the same level
+
+
+
+
+      isSubMenu : Boolean; //-----------------------------------------------------// Is it a submenu?
+
+      hasCheckBox:Boolean; //-----------------------------------------------------// Is it a checkbox?
+      checkBoxStatus: Boolean; //-------------------------------------------------// Status
+
+      hasPicture: Boolean; //-----------------------------------------------------// Icon?
+      picturePath:String; //------------------------------------------------------// Where is the picture?
+
+      shortCut : String; //-------------------------------------------------------// Keyboard shortcut
     end;
 
 
@@ -129,6 +142,13 @@ begin
    newNode^.prev         := nil;
    newNode^.Children     := nil;
    newNode^.Parent       := nil;
+
+   newNode^.isSubMenu    := False; //---------------------------------------------// This function will not be called to add a submenu
+   newNode^.hasCheckBox  := False; //---------------------------------------------// Unless it is specified, set to be false
+   newNode^.checkBoxStatus:=False; //---------------------------------------------// Set it to false, because no other info supplied
+   newNode^.hasPicture   := False; //---------------------------------------------// Same Logic
+   newNode^.picturePath  := ''; //------------------------------------------------// NOTHING. main menu should not have any of this.
+
 
    if root = nil then  //---------------------------------------------------------// The tree does not exist yet, i.e. not even the first item of the
                                                                                   // has been defined until this point.
@@ -311,6 +331,16 @@ begin
      newNode^.Children     := nil;
      newNode^.Parent       := currNode; //----------------------------------------// currNode, which matched the expected parent
                                                                                   // is set as the parent of the newNode
+
+
+     newNode^.isSubMenu    := True; //--------------------------------------------// This function will not be called to add a submenu
+     newNode^.hasCheckBox  := False; //-------------------------------------------// Unless it is specified, set to be false
+     newNode^.checkBoxStatus:=False; //-------------------------------------------// Set it to false, because no other info supplied
+     newNode^.hasPicture   := False; //-------------------------------------------// Same Logic
+     newNode^.picturePath  := ''; //----------------------------------------------// NOTHING. main menu should not have any of this.
+
+
+
      SetLength(currNode^.Children, length(currNode^.Children)+1); //--------------// Children array is increased in size by 1
      currNode^.Children[length(currNode^.Children) - 1] := newNode; //------------// Newly created iten is insreted in Children array
    end

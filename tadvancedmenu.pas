@@ -5,7 +5,7 @@ unit TAdvancedMenu;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls, ExtCtrls, dataTypes,BCLabel, bgraControls,BCTypes;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, StdCtrls, ExtCtrls, dataTypes,BCLabel, bgraControls,BCTypes, BCPanel;
 type
 
   TProcType     = procedure(const AParm: Integer) of object; // Method type
@@ -40,7 +40,7 @@ type
     heightPadding : Integer;
 
     mLabels       : Array of TBCLabel;
-    mPanels       : Array of TPanel;
+    mPanels       : Array of TBCPanel;
 
     constructor Create();
 
@@ -58,6 +58,10 @@ type
     procedure toggleSubMenu(Sender: TObject);
     procedure changeBGColor(Sender:TObject);
     procedure restoreBGColor(Sender:TObject);
+    procedure changePanel(Sender: TObject);
+    procedure restorePanel(Sender: TObject);
+    procedure changeLabelParentPanel(Sender: TObject);
+    procedure restoreLabelParentPanel(Sender: TObject);
 
 
 
@@ -211,7 +215,7 @@ begin
   //-----------------     Append to BG Colors           --------------------------//
 
   SetLength(MenuBGColors, length(MenuBGColors) + 1);
-  MenuBGColors[length(MenuBGColors) -1]:= clDefault; //---------------------------// Added the Form Background color (will also pick up the default)
+  MenuBGColors[length(MenuBGColors) -1]:= clMenuBar; //---------------------------// Added the Form Background color (will also pick up the default)
 
 
   //-----------------     Append to FG Colors           --------------------------//
@@ -245,7 +249,7 @@ end; //#########################################################################
 
 procedure TAdvancedMainMenu.update_RenderItemList(ii_id: Integer);
 var
-  mPanel        : TPanel;
+  mPanel        : TBCPanel;
   mLabel        : TBCLabel;
   c             : TBitMap;
 
@@ -255,7 +259,7 @@ begin
 
   //---------------------    Create the Display Items       ----------------------//
 
-  mPanel        := TPanel.create(nil); //-----------------------------------------// The main Panel (so that we can also add checkboxes and radios)
+  mPanel        := TBCPanel.create(nil); //-----------------------------------------// The main Panel (so that we can also add checkboxes and radios)
   mPanel.Parent := nil;
   mLabel        := TBCLabel.Create(mPanel); //------------------------------------// The label to contain the text of the menu item
   mLabel.Parent := mPanel;             
@@ -269,7 +273,7 @@ begin
   mLabel.Name   := currNode^.name ; //--------------------------------------------// The name of the label remains as the internal identifier
   mPanel.Caption:= ''; //---------------------------------------------------------// Otherwise this will render the internal name on top of the text label
   mPanel.Top    := heightPadding  ; //--------------------------------------------// Constant padding on the top. this is not user controllable
-  mPanel.BorderStyle:=bsNone;
+  mPanel.Border.Style:=bboNone;
   mPanel.BevelOuter:=bvNone; //---------------------------------------------------// Otherwise, a border will be drawn
 
   if ( length(mPanels) = 0) then
@@ -289,7 +293,8 @@ begin
   mLabel.Rounding.RoundY:=MenuBorderRadii[ii_id];
   mLabel.FontEx.Color:=MenuFGColors[ii_id]; //------------------------------------// Font color
   mLabel.Color  := MenuBGColors[ii_id];
-  mPanel.Color  := MenuBGColors[ii_id];;
+  mPanel.Color  := MenuBGColors[ii_id];
+  mLabel.Top    := (mPanel.Height - mLabel.Height) div 2; ;
 
   c := TBitmap.Create;
   c.Canvas.Font.Assign(Screen.SystemFont);
@@ -348,7 +353,7 @@ end; //#########################################################################
 
 procedure TAdvancedMainMenu.render(parent: TPanel);
 var
-  mPanel        : TPanel;
+  mPanel        : TBCPanel;
   i             : Integer;
   nm            : String;
   currNode      : TNodePtr;
@@ -434,8 +439,59 @@ end;
 
 procedure TAdvancedMainMenu.restoreBGColor(Sender: TObject);
 begin
-  (Sender as TBCLabel).Background.Color := clBackground;
+  (Sender as TBCLabel).Background.Color := clMenuBar;
   (Sender as TBCLabel).Background.Style := bbsColor;
+end;
+
+procedure TAdvancedMainMenu.changePanel(Sender: TObject);
+begin
+  (Sender as TBCPanel).Background.Color := TColor($1F3310);
+  (Sender as TBCPanel).Border.Color :=  TColor($207A00);
+  (Sender as TBCPanel).Border.Width:=1;
+  (Sender as TBCPanel).BevelOuter:=bvNone;
+  (Sender as TBCPanel).BevelWidth:=0;
+  (Sender as TBCPanel).Border.LightWidth:=0;
+  (Sender as TBCPanel).Border.Style:=bboSolid;
+  (Sender as TBCPanel).BorderBCStyle:=bpsBorder;
+  (Sender as TBCPanel).Rounding.RoundX:=5;
+  (Sender as TBCPanel).Rounding.RoundY:=5;
+
+
+  // clInactiveCaption;
+end;
+
+procedure TAdvancedMainMenu.restorePanel(Sender: TObject);
+begin
+  (Sender as TBCPanel).Background.Color := clBackground;
+  (Sender as TBCPanel).Border.Width:=0;
+  (Sender as TBCPanel).Border.Style:=bboNone;
+
+end;
+
+
+procedure TAdvancedMainMenu.changeLabelParentPanel(Sender: TObject);
+begin
+  ((Sender as TBCLabel).Parent as TBCPanel).Background.Color :=  TColor($1F3310);
+  ((Sender as TBCLabel).Parent as TBCPanel).Border.Color :=  TColor($207A00);
+  ((Sender as TBCLabel).Parent as TBCPanel).Border.Width:=1;
+  ((Sender as TBCLabel).Parent as TBCPanel).BevelOuter:=bvNone;
+  ((Sender as TBCLabel).Parent as TBCPanel).BevelWidth:=0;
+  ((Sender as TBCLabel).Parent as TBCPanel).Border.LightWidth:=0;
+  ((Sender as TBCLabel).Parent as TBCPanel).Border.Style:=bboSolid;
+  ((Sender as TBCLabel).Parent as TBCPanel).BorderBCStyle:=bpsBorder;
+  ((Sender as TBCLabel).Parent as TBCPanel).Rounding.RoundX:=5;
+  ((Sender as TBCLabel).Parent as TBCPanel).Rounding.RoundY:=5;
+
+
+  // clInactiveCaption;
+end;
+
+procedure TAdvancedMainMenu.restoreLabelParentPanel(Sender: TObject);
+begin
+  ((Sender as TBCLabel).Parent as TBCPanel).Background.Color := clBackground;
+  ((Sender as TBCLabel).Parent as TBCPanel).Border.Width:=0;
+  ((Sender as TBCLabel).Parent as TBCPanel).Border.Style:=bboNone;
+
 end;
 
 procedure TAdvancedMainMenu.toggleSubMenu(Sender: TObject);
@@ -446,16 +502,26 @@ var
   chldNode      : TNodePtr;
   lst           : String;
 
-  mPanel        : TPanel;
-  cPanel        : TPanel;
+  mPanel        : TBCPanel;
+  cPanel        : TBCPanel;
   mLabel        : TBCLabel;
+  cLabel        : TBCLabel;
+
+  cImage        : TImage;
+  cText         : TStaticText;
+  cCheckBox     : TCheckBox;
+
   c             : TBitMap;
+  cl            : TColor;
 
   ii_id         : Integer;
   tHeight       : Integer;
   lHeight       : Integer;
   padding       : Integer;
   maxWidth      : Integer;
+
+  cPanels       : Array of TBCPanel;
+
 begin
 
   //-----------    Get the name of the sender and the sender itself      ---------//
@@ -475,7 +541,7 @@ begin
 
   //------------------   Add a Panel to hold the subMenus      -------------------//
 
-  mPanel        := TPanel.create((Sender as TBCLabel).Parent.Parent.Parent); //----------// The holding panel, will be a child of the great-grandparent
+  mPanel        := TBCPanel.create((Sender as TBCLabel).Parent.Parent.Parent); //----------// The holding panel, will be a child of the great-grandparent
                                                                                   // of the  event sender label
                                                                                   // The parent of the sender is another container panel.
                                                                                   // The grandparent is the big panel that emulates a complete menu bar
@@ -484,7 +550,7 @@ begin
   mPanel.Parent := (Sender as TBCLabel).Parent.Parent.Parent;
   mPanel.Left   := (Sender as TBCLabel).Parent.Left;
   mPanel.Top    := (Sender as TBCLabel).Parent.Parent.Top + (Sender as TBCLabel).Parent.Parent.Height;
-  mPanel.Color  := clMenuBar;
+
 
   tHeight       := 0;
   mPanel.Height :=  tHeight;
@@ -492,6 +558,8 @@ begin
   padding       := 2;
   maxWidth      := 150;
   mPanel.Width  := maxWidth;
+
+
 
   //--------------------    Cycle through the Children      ----------------------//
 
@@ -506,6 +574,68 @@ begin
 
     cPanel.Left := 0 + padding;
     cPanel.Top:= lHeight + padding;
+    cPanel.Height:= 25;
+
+
+    //############# REFACTOR THIS PART #########################################
+
+    cLabel      := mLabels[ii_id];
+    cLabel.OnMouseEnter:= nil;
+    cLabel.OnMouseLeave:= nil;
+
+    cLabel.Left := 50;
+    cLabel.Top:= (cPanel.Height - cLabel.Height) div 2;
+
+    // cPanel.Width:=  maxWidth;
+    // cPanel.Width + 50;
+
+    cCheckBox   := TCheckBox.Create(cPanel);
+    cCheckBox.Parent := cPanel;
+
+    cCheckBox.Left:=padding;
+    cCheckBox.Width:=25;
+    cCheckBox.Height:=25;
+
+    cCheckBox.Top:= (cPanel.Height - cCheckBox.Height) div 2;
+
+    cl          := clBackground;
+    cLabel.Color:= cl;
+    cCheckBox.Color:=cl;
+    cPanel.Background.Color:= cl;
+    // mPanel.Color:= cl;
+
+    cImage      := TImage.Create(cPanel);
+    cImage.Parent:= cPanel;
+
+    // Set the image scaling
+    cImage.Picture.LoadFromFile('./open.png');
+    cImage.Height:=20;
+    cImage.Width:=20;
+    cImage.Stretch:=true;
+    cImage.Center:=true;
+
+
+    cImage.Left:=26;
+    cImage.Top:= (cPanel.Height - cImage.Height) div 2;
+
+
+    ///// correct the colors
+
+    cPanel.OnMouseEnter:=@changePanel;
+    cPanel.OnMouseLeave:=@restorePanel;
+
+    cLabel.OnMouseEnter:=@changeLabelParentPanel;
+    cLabel.OnMouseLeave:=@restoreLabelParentPanel;
+
+    //cImage.OnMouseEnter:=@changeParentPanel;
+    //cImage.OnMouseLeave:=@restoreParentPanel;
+
+    //cCheckBox.OnMouseEnter:=@changeParentPanel;
+    //cCheckBox.OnMouseLeave:=@restoreParentPanel;
+
+    //############# END REFACTOR THIS PART #####################################
+
+
     lHeight   := cPanel.Top + cPanel.Height;
 
     tHeight     := tHeight + cPanel.Height + padding;
@@ -517,9 +647,29 @@ begin
       mPanel.Width:= maxWidth;
     end;
 
+    SetLength(cPanels, length(cPanels) + 1);
+    cPanels[length(cPanels) - 1] := cPanel;
+
   end;
 
   mPanel.Height:=mPanel.Height + padding;
+  mPanel.Border.Color :=clGrayText;
+  mPanel.Border.Width:=1;
+  mPanel.BevelOuter:=bvNone;
+  mPanel.BevelWidth:=0;
+  mPanel.Border.LightWidth:=0;
+  mPanel.Border.Style:=bboSolid;
+  mPanel.BorderBCStyle:=bpsBorder;
+  mPanel.Background.Color  := clBackground;
+  mPanel.Rounding.RoundX:=5;
+  mPanel.Rounding.RoundY:=5;
+
+  for i := 0 to length(cPanels) - 1 do
+  begin
+    cPanels[i].Width:=mPanel.Width - 2*padding;
+  end;
+
+
 
 
   // TODO Turn Off Other Open Submenus

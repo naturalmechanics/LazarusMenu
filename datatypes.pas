@@ -5,7 +5,7 @@ unit dataTypes;
 interface
 
 uses
-  Classes, SysUtils, Dialogs;
+  Classes, SysUtils, Dialogs, Graphics;
 
 type
     genNodePtr = ^NodeStruct; // -------------------------------------------------// The ^ symbol in front of the struct type is of type :
@@ -62,6 +62,24 @@ type
       picturePath:String; //------------------------------------------------------// Where is the picture?
 
       shortCut : String; //-------------------------------------------------------// Keyboard shortcut
+
+      isSubMenuDrawn : Boolean; //------------------------------------------------// Is the submenu drawn
+      subMenuContainer: TObject; //-----------------------------------------------// Container for submenu
+
+      FGColorCp : TColor;
+      BGColorCp : TColor;
+      BGColorOriginal : TColor;
+      FGColorOriginal : TColor;
+      BGColorCopied:Boolean;
+      FGColorCopied:Boolean;
+
+      shortCutString : String;
+      hasShortCut    : Boolean;
+
+      hasPanelHighLightColor : Boolean;
+      panelHighLightColor : TColor;
+
+
     end;
 
 
@@ -82,6 +100,7 @@ type
       procedure AppendString_asNode(var insertionObject : String; var IDName : String; var ID : Integer);
       procedure AppendString_asSubNode ( var target: mt; var insertionObject : String; var ID : Integer);
       procedure AppendString_asSubNode_byName(var target: String ; var insertionObject: String; var name: String; var ID: Integer);
+      procedure AppendString_asSubSubNode_byName(var target: String ; var insertionObject: String; var name: String; var ID: Integer);
   end;
 implementation
 
@@ -148,6 +167,20 @@ begin
    newNode^.checkBoxStatus:=False; //---------------------------------------------// Set it to false, because no other info supplied
    newNode^.hasPicture   := False; //---------------------------------------------// Same Logic
    newNode^.picturePath  := ''; //------------------------------------------------// NOTHING. main menu should not have any of this.
+
+   newNode^.isSubMenuDrawn:=False; //---------------------------------------------// Submenu is not drawn Yet
+   newNode^.subMenuContainer:= nil;//---------------------------------------------// Currently Nothing
+
+   newNode^.BGColorCp    := clNone;
+   newNode^.BGColorCopied:= False;
+   newNode^.FGColorCp    := clNone;
+   newNode^.FGColorCopied:= False;
+
+   newNode^.hasShortCut  := False;
+   newNode^.shortCut     := '';
+
+   newNode^.hasPanelHighLightColor:= False;
+   newNode^.panelHighLightColor   := clNone;
 
 
    if root = nil then  //---------------------------------------------------------// The tree does not exist yet, i.e. not even the first item of the
@@ -227,6 +260,16 @@ begin
      newNode^.prev         := nil;
      newNode^.Children     := nil;
      newNode^.Parent       := nil;
+     newNode^.BGColorCp    := clNone;
+     newNode^.BGColorCopied:= False;
+     newNode^.FGColorCp    := clNone;
+     newNode^.FGColorCopied:= False;
+
+     newNode^.hasShortCut  := False;
+     newNode^.shortCut     := '';
+     newNode^.isSubMenuDrawn:=False; //-------------------------------------------// Submenu is not drawn Yet
+     newNode^.subMenuContainer:= nil;//-------------------------------------------// Currently Nothing
+
      SetLength(currNode^.Children, length(currNode^.Children)+1);
      currNode^.Children[length(currNode^.Children) - 1] := newNode;
    end
@@ -239,6 +282,17 @@ begin
      newNode^.prev         := nil;
      newNode^.Children     := nil;
      newNode^.Parent       := nil;
+     newNode^.BGColorCp    := clNone;
+     newNode^.BGColorCopied:= False;
+     newNode^.FGColorCp    := clNone;
+     newNode^.FGColorCopied:= False;
+
+     newNode^.hasShortCut  := False;
+     newNode^.shortCut     := '';
+     newNode^.isSubMenuDrawn:=False; //-------------------------------------------// Submenu is not drawn Yet
+     newNode^.subMenuContainer:= nil;//-------------------------------------------// Currently Nothing
+
+
      newNode^.prev         := currNode^.Children[length(currNode^.Children) - 1] ;
      currNode^.Children[length(currNode^.Children) - 1]^.next := newNode;
 
@@ -337,8 +391,20 @@ begin
      newNode^.hasCheckBox  := False; //-------------------------------------------// Unless it is specified, set to be false
      newNode^.checkBoxStatus:=False; //-------------------------------------------// Set it to false, because no other info supplied
      newNode^.hasPicture   := False; //-------------------------------------------// Same Logic
-     newNode^.picturePath  := ''; //----------------------------------------------// NOTHING. main menu should not have any of this.
+     newNode^.picturePath  := ''; //----------------------------------------------// NOTHING. main menu should not have any of this.   
+     newNode^.isSubMenuDrawn:=False; //-------------------------------------------// Submenu is not drawn Yet
+     newNode^.subMenuContainer:= nil;//-------------------------------------------// Currently Nothing
+     newNode^.hasShortCut  := False;
+     newNode^.shortCut     := '';
 
+     newNode^.BGColorCp    := clNone;
+     newNode^.BGColorCopied:= False;
+     newNode^.FGColorCp    := clNone;
+     newNode^.FGColorCopied:= False;
+
+
+     newNode^.hasPanelHighLightColor:= False;
+     newNode^.panelHighLightColor   := clNone;
 
 
      SetLength(currNode^.Children, length(currNode^.Children)+1); //--------------// Children array is increased in size by 1
@@ -357,6 +423,215 @@ begin
      newNode^.prev         := currNode^.Children[length(currNode^.Children) - 1]; // here, the prev field of the new node is set as the address of
                                                                                   // the last child in the children field of the parent
                                                                                   // (parent is given by currnode)
+     newNode^.isSubMenu    := True; //--------------------------------------------// This function will not be called to add a submenu
+     newNode^.hasCheckBox  := False; //-------------------------------------------// Unless it is specified, set to be false
+     newNode^.checkBoxStatus:=False; //-------------------------------------------// Set it to false, because no other info supplied
+     newNode^.hasPicture   := False; //-------------------------------------------// Same Logic
+     newNode^.picturePath  := ''; //----------------------------------------------// NOTHING. main menu should not have any of this.
+     newNode^.isSubMenuDrawn:=False; //-------------------------------------------// Submenu is not drawn Yet
+     newNode^.subMenuContainer:= nil;//-------------------------------------------// Currently Nothing
+     newNode^.hasShortCut  := False;
+     newNode^.shortCut     := '';
+
+     newNode^.BGColorCp    := clNone;
+     newNode^.BGColorCopied:= False;
+     newNode^.FGColorCp    := clNone;
+     newNode^.FGColorCopied:= False;
+
+
+     newNode^.hasPanelHighLightColor:= False;
+     newNode^.panelHighLightColor   := clNone;
+
+     currNode^.Children[length(currNode^.Children) - 1]^.next := newNode; //------// newnode is assigned as the next item of the last element
+                                                                                  // of the children (newnode is not inserted in the children array yet)
+
+     SetLength(currNode^.Children, length(currNode^.Children)+1); //--------------// Children array is updated as before.
+     currNode^.Children[length(currNode^.Children) - 1] := newNode;
+
+
+
+   end;
+
+
+end;
+
+procedure tree_ofStrings.AppendString_asSubSubNode_byName(var target: String ; var insertionObject: String; var name: String; var ID: Integer);
+                                                               // ----------------// ++++ The menus, in any particular level, is a doubly linked list
+                                                                                  // ++++ Example, the main menu :
+                                                                                  // ++++ File <---> Edit <---> View <---> Tools .. etc
+                                                                                  // ++++ or, the submenus of menu entry "File" :
+                                                                                  // ++++ New <---> Open <---> Save <---> Close <---> Quit program .. etc.
+                                                                                  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                                                                  // ++++ This PROCEDURE inserts a sub menu item as a child to a given menu.
+                                                                                  // ++++ The children item itself always is also a doubly linked list.
+                                                                                  // ++++ This function adds an item at the end of that list.
+                                                                                  // ++++ For example, for the menu entry "file", the item "children" would be
+                                                                                  // ++++ the doubly linked list that contains (using the above example)
+                                                                                  // ++++ New <---> Open <---> Save <---> Close <---> Quit program .. etc.
+                                                                                  // ++++ Then, the parent of the newly inserted item is adjusted accordingly.
+                                                                                  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                                                                  // ++++ Arguments :
+                                                                                  // ++++ target          : The parent menu Item (specifically, it's name as string)
+                                                                                  // ++++ such as "fileMenu"
+                                                                                  // ++++ insertionObject : The display name of the item to be inserted at the END
+                                                                                  // ++++ of the doubly linked list used to contain the main menu
+                                                                                  // ++++ Example : "Open", or "Save".
+                                                                                  // ++++ IDName          : The INTERNAL NAME of the menu item
+                                                                                  // ++++ Example : "openMenu", or "saveMenu".
+                                                                                  // ++++ ID              : An **UNIQUE** integer ID.
+var
+   newNode                       : ^stringNodeStruct; //--------------------------// A new node to be inserted
+   currNode                      : ^stringNodeStruct; //--------------------------// The current element being inspected, to find the tail element of the list
+
+   argStr                        : String; //-------------------------------------// NOIMPL YET
+
+   ii                            : Integer;//-------------------------------------// Some dummy / Index variables.
+   ii_id                         : Integer;
+   ti                            : vc;
+   nodeNum                       : Integer;
+   branchNum                     : Integer;
+
+   jj                            : Integer;
+   jj_id                         : Integer;
+
+   nameFound     : Boolean; //----------------------------------------------------// A boolean to track whether the target name was found.
+begin
+   if (root = nil) then
+   begin
+     Exit; //---------------------------------------------------------------------// If inserting a submenu, the root item of the main menu list must be set.
+   end;
+   currNode := root; //-----------------------------------------------------------// If the root item of the main menu is set, continue process
+   nameFound:= False;//-----------------------------------------------------------// Have not found yet
+
+
+   while (True) do //-------------------------------------------------------------// Have not found last element yet.
+   begin
+
+     if (currNode^.name = target) then //-----------------------------------------// name has matched with target.
+     begin
+
+
+
+       nameFound:= True; //-------------------------------------------------------// set the boolean.
+                                                                                  // If the boolean was not set, then it would mean that the while loop ran to end
+       Break; //------------------------------------------------------------------// break loop.
+     end;
+
+
+     //---------------------------------------------------------------------------// If at this point, then nothing was found yet
+
+
+     if ( Length(currNode^.Children) <> 0) then
+     begin
+       currNode := currNode^.Children[0]; //--------------------------------------// take the the first child
+       Continue; //---------------------------------------------------------------// Go back to the begining
+     end;
+
+
+     //---------------------------------------------------------------------------// If at this point, then nothing was found yet,
+                                                                                  // and no children
+
+
+     if (currNode^.next <> nil) then
+     begin
+       currNode := currNode^.next; //---------------------------------------------// take the the next element
+       Continue; //---------------------------------------------------------------// Go back to the begining
+     end;
+
+
+     //---------------------------------------------------------------------------// If at this point, then nothing was found yet,
+                                                                                  // and no children, and nothing next
+
+
+     if (currNode^.Parent <> nil) then //-----------------------------------------// Need to jump back
+     begin
+      currNode  := currNode^.Parent;  //------------------------------------------// parent reached, but parent was already checked.
+      if (currNode^.next <> nil) then //------------------------------------------// check if we can do it
+      begin
+        currNode:= currNode^.next;
+        Continue;
+      end; //---------------------------------------------------------------------// If can't find next of parent,
+                                                                                  // controll will go past this point
+                                                                                  // and the next 'end' keyword
+                                                                                  // and reach break
+     end;
+
+
+     Break;
+   end;
+
+
+   if not nameFound then Exit;  //------------------------------------------------// If you have not found any match, but the while loop just ended,
+                                                                                  // Exit.
+                                                                                  // otherwise, the parent (given by 'target') is matched
+                                                                                  // and saved in 'currnode'
+
+   if length(currNode^.Children) = 0 then  //-------------------------------------// is there is no children yet
+   begin
+     newNode               := New(strNodePtr);  //--------------------------------// create newnode ( create a pointer)
+     newNode^.stringVal    := insertionObject;  //--------------------------------// Insert the data
+     newNode^.ID           := ID;
+     newNode^.name         := name;
+     newNode^.next         := nil;
+     newNode^.prev         := nil; //---------------------------------------------// no prev, and no next as newnode will be the only child so far
+     newNode^.Children     := nil;
+     newNode^.Parent       := currNode; //----------------------------------------// currNode, which matched the expected parent
+                                                                                  // is set as the parent of the newNode
+
+
+     newNode^.isSubMenu    := True; //--------------------------------------------// This function will not be called to add a submenu
+     newNode^.hasCheckBox  := False; //-------------------------------------------// Unless it is specified, set to be false
+     newNode^.checkBoxStatus:=False; //-------------------------------------------// Set it to false, because no other info supplied
+     newNode^.hasPicture   := False; //-------------------------------------------// Same Logic
+     newNode^.picturePath  := ''; //----------------------------------------------// NOTHING. main menu should not have any of this.
+     newNode^.isSubMenuDrawn:=False; //-------------------------------------------// Submenu is not drawn Yet
+     newNode^.subMenuContainer:= nil;//-------------------------------------------// Currently Nothing
+     newNode^.hasShortCut  := False;
+     newNode^.shortCut     := '';
+
+     newNode^.hasPanelHighLightColor:= False;
+     newNode^.panelHighLightColor   := clNone;
+
+     newNode^.BGColorCp    := clNone;
+     newNode^.BGColorCopied:= False;
+     newNode^.FGColorCp    := clNone;
+     newNode^.FGColorCopied:= False;
+
+
+     SetLength(currNode^.Children, length(currNode^.Children)+1); //--------------// Children array is increased in size by 1
+     currNode^.Children[length(currNode^.Children) - 1] := newNode; //------------// Newly created iten is insreted in Children array
+   end
+   else //------------------------------------------------------------------------// Some children Exists.
+   begin
+     newNode               := New(strNodePtr); //---------------------------------// same as above.
+     newNode^.stringVal    := insertionObject;
+     newNode^.ID           := ID;
+     newNode^.name         := name;
+     newNode^.next         := nil;
+     newNode^.prev         := nil; //---------------------------------------------// initialize as nil, but will change soon
+     newNode^.Children     := nil;
+     newNode^.Parent       := currNode;
+     newNode^.prev         := currNode^.Children[length(currNode^.Children) - 1]; // here, the prev field of the new node is set as the address of
+                                                                                  // the last child in the children field of the parent
+                                                                                  // (parent is given by currnode)
+     newNode^.isSubMenu    := True; //--------------------------------------------// This function will not be called to add a submenu
+     newNode^.hasCheckBox  := False; //-------------------------------------------// Unless it is specified, set to be false
+     newNode^.checkBoxStatus:=False; //-------------------------------------------// Set it to false, because no other info supplied
+     newNode^.hasPicture   := False; //-------------------------------------------// Same Logic
+     newNode^.picturePath  := ''; //----------------------------------------------// NOTHING. main menu should not have any of this.
+     newNode^.isSubMenuDrawn:=False; //-------------------------------------------// Submenu is not drawn Yet
+     newNode^.subMenuContainer:= nil;//-------------------------------------------// Currently Nothing
+     newNode^.hasShortCut  := False;
+     newNode^.shortCut     := '';
+
+     newNode^.hasPanelHighLightColor:= False;
+     newNode^.panelHighLightColor   := clNone;
+
+     newNode^.BGColorCp    := clNone;
+     newNode^.BGColorCopied:= False;
+     newNode^.FGColorCp    := clNone;
+     newNode^.FGColorCopied:= False;
+
      currNode^.Children[length(currNode^.Children) - 1]^.next := newNode; //------// newnode is assigned as the next item of the last element
                                                                                   // of the children (newnode is not inserted in the children array yet)
 

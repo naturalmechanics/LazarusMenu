@@ -1,11 +1,11 @@
 object Form1: TForm1
-  Left = 648
+  Left = 488
   Height = 875
   Top = 95
-  Width = 1080
+  Width = 1240
   Caption = 'Form1'
   ClientHeight = 845
-  ClientWidth = 1080
+  ClientWidth = 1240
   Menu = MainMenu1
   OnCreate = FormCreate
   LCLVersion = '2.2.4.0'
@@ -95,6 +95,7 @@ object Form1: TForm1
     FontEx.ShadowOffsetX = 5
     FontEx.ShadowOffsetY = 5
     FontEx.Style = []
+    FontEx.TextAlignment = bcaRightCenter
     Rounding.RoundX = 1
     Rounding.RoundY = 1
   end
@@ -139,7 +140,7 @@ object Form1: TForm1
     Left = 0
     Height = 32
     Top = 0
-    Width = 1080
+    Width = 1240
     BevelOuter = bvNone
     Color = clMenuBar
     ParentColor = False
@@ -156,11 +157,12 @@ object Form1: TForm1
     TabOrder = 2
   end
   object BCPanel1: TBCPanel
-    Left = 280
+    Left = 640
     Height = 50
-    Top = 64
+    Top = 80
     Width = 170
     Background.Color = clInactiveCaption
+    Background.ColorOpacity = 200
     Background.Gradient1.StartColor = clWhite
     Background.Gradient1.EndColor = clBlack
     Background.Gradient1.GradientType = gtLinear
@@ -180,7 +182,7 @@ object Form1: TForm1
     BevelInner = bvNone
     BevelOuter = bvNone
     BevelWidth = 0
-    Border.Color = clGrayText
+    Border.Color = 2128384
     Border.LightOpacity = 0
     Border.Style = bboSolid
     BorderBCStyle = bpsBorder
@@ -196,6 +198,7 @@ object Form1: TForm1
     Rounding.RoundX = 1
     Rounding.RoundY = 1
     TabOrder = 3
+    OnClick = BCPanel1Click
   end
   object Image1: TImage
     Left = 105
@@ -245,6 +248,14 @@ object Form1: TForm1
     ParentColor = False
     OnClick = Label1Click
   end
+  object CheckBox2: TCheckBox
+    Left = 330
+    Height = 22
+    Top = 347
+    Width = 96
+    Caption = 'CheckBox2'
+    TabOrder = 6
+  end
   object MainMenu1: TMainMenu
     Left = 504
     Top = 384
@@ -259,6 +270,15 @@ object Form1: TForm1
       object MenuItem4: TMenuItem
         Caption = 'MenuItem4'
       end
+    end
+  end
+  object ActionList1: TActionList
+    Left = 837
+    Top = 296
+    object Action1: TAction
+      Caption = 'quit'
+      OnExecute = Action1Execute
+      ShortCut = 32883
     end
   end
 end

@@ -8,18 +8,21 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Menus,
-  StdCtrls, BCLabel, BCPanel, TAdvancedMenu, Themes, ColorBox;
+  StdCtrls, BCLabel, BCPanel, TAdvancedMenu, Themes, ColorBox, ActnList, LCLProc;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    Action1: TAction;
+    ActionList1: TActionList;
     BCLabel1: TBCLabel;
     BCLabel2: TBCLabel;
     BCLabel3: TBCLabel;
     BCPanel1: TBCPanel;
     CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
     ColorBox1: TColorBox;
     Image1: TImage;
     Label1: TLabel;
@@ -31,14 +34,18 @@ type
     Panel1: TPanel;
     Panel2: TPanel;
     StaticText1: TStaticText;
+    procedure Action1Execute(Sender: TObject);
+    procedure BCPanel1Click(Sender: TObject);
     procedure ColorBox1Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Label1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure Panel1Click(Sender: TObject);
     procedure FileClick(Sender: TObject);
-    procedure Panel1GetDockCaption(Sender: TObject; AControl: TControl;
-      var ACaption: String);
+    procedure Panel1GetDockCaption(Sender: TObject; AControl: TControl; var ACaption: String);
+    procedure quitApplication(Sender: TObject);
+    procedure printData(Sender: TObject);
+    procedure sendData(Sender: TObject);
   private
 
   public
@@ -63,7 +70,10 @@ var
 
   mForm         : TForm;
   mPanel        : TPanel;
-  ta            : TAdvancedMenu.TProc;
+  qa            : TAdvancedMenu.TProc;
+  pa            : TAdvancedMenu.TProc;
+  sa            : TAdvancedMenu.TProc;
+
   ids           : Integer;
 
   FileMenuItems : Array of String;
@@ -76,6 +86,17 @@ var
   NewMenuItemNames:Array of String;
 
   OpenMenuItems : Array of String;
+  OpenMenuItemNames:Array of String;
+
+  recentMenuItems : Array of String;
+  recentMenuItemNames:Array of String;
+
+  closeMenuShortCut : String;
+  quitMenuShortCut  : String;
+  importMenuShortCut: String;
+
+  blankDocumentMenuShortCut   :  String;
+  fromTemplateMenuShortCut    :  String;
 
 begin
   MainMenuItems := ['File', 'Edit', 'View', '[Select Mode]', 'Tools', 'Help'];
@@ -87,29 +108,65 @@ begin
   FileMenuItems := ['New', 'Open', 'Save', 'Import', 'Export', 'Print', 'Send', 'Close', 'Quit'];
   FileMenuItemNames:=['newMenu', 'openMenu', 'saveMenu', 'importMenu', 'exportMenu', 'printMenu', 'sendMenu', 'closeMenu', 'quitMenu' ];
 
-  EditMenuItems := ['Cut', 'Copy', 'Paste', 'undo', 'redo'];
-  EditMenuItemNames:=['cutMenu', 'copyMenu', 'pasteMenu', 'undoMenu', 'redoMenu'];
+  EditMenuItems := ['Undo', 'Redo', '-', 'Cut', 'Copy', 'Paste'];
+  EditMenuItemNames:=['undoMenu', 'redoMenu','divider1' ,'cutMenu', 'copyMenu', 'pasteMenu'];
+
+  MainMenu.set_BGColor('viewMenu', TColor($662244));
+  MainMenu.set_FGColor('helpMenu', TColor($88DDBB));
+
+  mForm         := Form1;
 
   MainMenu.add_mainMenuSubMenu_byName('fileMenu', FileMenuItems, FileMenuItemNames);  // SUBMENU ADDED BUT WILL NOT RENDER
   MainMenu.add_mainMenuSubMenu_byName('editMenu', EditMenuItems, EditMenuItemNames);  // SUBMENU ADDED BUT WILL NOT RENDER
 
-  // MainMenu.add_subMenuCheckBox('newMenu', True);
 
-  // MainMenu.add_subMenuPicture('newMenu', 'new.png');
-  // MainMenu.add_subMenuPicture('newMenu', 'open.png');
+  MainMenu.add_subMenuCheckBox('newMenu', True);
+  MainMenu.add_subMenuCheckBox('exportMenu', False);
 
+  MainMenu.add_subMenuPicture('newMenu', 'new.png');
+  MainMenu.add_subMenuPicture('openMenu', 'open.png');
+
+  // MainMenu.set_FGColor('closeMenu', TColor($88DDBB));
 
 
   NewMenuItems  := ['Blank Document', 'From Templates'];
   NewMenuItemNames:=['blankDocumentMenu', 'fromTemplateMenu'];
 
-  OpenMenuItems := ['Open Recents', 'Open Existing Document'];
+  OpenMenuItems := ['Open Recents', 'Open Existing Document', 'Open Remote'];
+  OpenMenuItemNames:=['recentItemsMenu', 'existingItemMenu', 'RemoteItemMenu'];
+
+  recentMenuItems := ['File A', 'File B', 'File C', 'File D'];
+  recentMenuItemNames:=['fileA', 'fileB', 'fileC', 'fileD'];
+
+  closeMenuShortCut := 'Strg + W';
+  quitMenuShortCut  := ShortCutToText(Action1.ShortCut);
+  importMenuShortCut:= 'Strg + Umschalt + I';
+
+  fromTemplateMenuShortCut := 'Strg + Umschalt + N';
+  blankDocumentMenuShortCut:= 'Strg + N' ;
+
+  MainMenu.assign_subMenuShortCut('closeMenu', closeMenuShortCut);
+  MainMenu.assign_subMenuShortCut('quitMenu', quitMenuShortCut);
+  MainMenu.assign_subMenuShortCut('importMenu', importMenuShortCut);
+
+  MainMenu.add_subMenuSubMenu_byName('newMenu', NewMenuItems, NewMenuItemNames);
+  MainMenu.add_subMenuSubMenu_byName('openMenu', openMenuItems, openMenuItemNames);
+
+  MainMenu.add_subMenuSubMenu_byName('recentItemsMenu', recentMenuItems, recentMenuItemNames);
+
+  MainMenu.assign_subMenuShortCut('blankDocumentMenu', blankDocumentMenuShortCut); 
+  MainMenu.assign_subMenuShortCut('fromTemplateMenu' , fromTemplateMenuShortCut);
 
 
-  mForm         := Form1;
   mPanel        := Panel2;
   MainMenu.render(mPanel);
 
+
+  qa            := @quitApplication;
+  MainMenu.add_clickAction_byName('quitMenu', qa);
+  Action1.OnExecute:=@quitApplication;
+  MainMenu.add_clickAction_byName('printMenu', @printData);
+  MainMenu.add_clickAction_byName('sendMenu', @sendData);
 
   {
   ta            := @FileClick;
@@ -142,6 +199,18 @@ begin
   Label1.Caption := Format('R%d G%d B%d', [Red(c), Green(c), Blue(c)]);
 end;
 
+procedure TForm1.BCPanel1Click(Sender: TObject);
+begin
+  BCPanel1.Canvas.Pen.Color := clWhite;
+  BCPanel1.Canvas.Pen.Width:=2;
+  BCPanel1.Canvas.Line(0, BCPanel1.Height div 2, BCPanel1.Width, BCPanel1.Height div 2);
+end;
+
+procedure TForm1.Action1Execute(Sender: TObject);
+begin
+
+end;
+
 procedure TForm1.MenuItem1Click(Sender: TObject);
 begin
 
@@ -149,7 +218,8 @@ end;
 
 procedure TForm1.Panel1Click(Sender: TObject);
 begin
-
+  Panel1.Canvas.Pen.Color := clWhite;
+  Panel1.Canvas.Line(0, Panel1.Height div 2, Panel1.Width, Panel1.Height div 2);
 end;
 
 procedure TForm1.FileClick(Sender: TObject);
@@ -161,6 +231,21 @@ procedure TForm1.Panel1GetDockCaption(Sender: TObject; AControl: TControl;
   var ACaption: String);
 begin
 
+end;
+
+procedure TForm1.quitApplication(Sender: TObject);
+begin
+  Form1.Close;
+end;
+
+procedure TForm1.printData(Sender: TObject);
+begin
+  showMessage('print clicked');
+end;
+
+procedure TForm1.sendData(Sender: TObject);
+begin
+  showMessage('Sending data');
 end;
 
 end.

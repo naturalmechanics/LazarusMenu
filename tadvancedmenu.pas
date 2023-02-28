@@ -43,6 +43,7 @@ type
     procedure mainMenuItem_mouseEnter (Sender: TObject);
     procedure mainMenuItem_mouseExit(Sender: TObject);
     procedure toggleSubMenu (Sender: TObject);
+    procedure paintDivider(Sender : TObject);
 
     procedure set_BGColor(nm: String; cl : TColor);
     procedure set_FGColor(nm: String; cl : TColor);
@@ -570,7 +571,9 @@ var
   y             : Integer;
   x             : Integer;
 
-  taregtPanel   : TBCPanel;
+  targetPanel   : TBCPanel;
+
+
 
 begin
 
@@ -605,6 +608,7 @@ begin
                                                                                   // = 0 need to be adjusted to have uniform width
 
 
+          {
           x     := ((currNode^.subMenuContainer as TBCPanel).Controls[i] as TBCPanel).Height;  // get the height
           ((currNode^.subMenuContainer as TBCPanel).Controls[i] as TBCPanel).Height:= 1;       // Set height to 1 (canvas line drawing is not working)
           ((currNode^.subMenuContainer as TBCPanel).Controls[i] as TBCPanel).Top := ((currNode^.subMenuContainer as TBCPanel).Controls[i] as TBCPanel).Top + ((x - 1) div 2) ; // bring the top to the center of the old panel
@@ -614,6 +618,10 @@ begin
           ((currNode^.subMenuContainer as TBCPanel).Controls[i] as TBCPanel).Border.Width:=1;
           ((currNode^.subMenuContainer as TBCPanel).Controls[i] as TBCPanel).Border.Style:=bboSolid;
           ((currNode^.subMenuContainer as TBCPanel).Controls[i] as TBCPanel).BorderBCStyle:=bpsBorder;
+          }
+
+          targetPanel := ((currNode^.subMenuContainer as TBCPanel).Controls[i] as TBCPanel);
+          targetPanel.OnPaint:=@paintDivider;
 
         end;
 
@@ -633,6 +641,16 @@ begin
   end;
 
 end; //###########################################################################// End of Function
+
+procedure TAdvancedMainMenu.paintDivider(Sender: TObject);
+var
+  targetPanel : TBCPanel;
+begin
+  targetPanel := (Sender as TBCPanel);
+  targetPanel.Canvas.Pen.Color := clGrayText;
+  //targetPanel.Height           := 18;
+  targetPanel.Canvas.Line(0, targetPanel.Height div 2, targetPanel.Width, targetPanel.Height div 2);;
+end;
 
 
 
@@ -913,7 +931,7 @@ begin
     if (chldNode^.stringVal = '-') then //----------------------------------------// it is a DIVIDER
     begin
       cPanel.Width:=0; //---------------------------------------------------------// Force panel width to be zero
-      cPanel.Height:= 10;
+      cPanel.Height:= 20;
       lHeight     := cPanel.Top + cPanel.Height; //-------------------------------// Last Submenu item height
       tHeight     := tHeight + cPanel.Height + padding; //------------------------// Total container height
       mPanel.Height:=tHeight ;  //------------------------------------------------// update container height itself
@@ -981,7 +999,7 @@ begin
       cImage.Parent:= cPanel; //--------------------------------------------------// Same stuff as cCheckBox
       cImage.Picture.LoadFromFile(chldNode^.picturePath);
       cImage.Height:=20; //-------------------------------------------------------// setting width and height
-      cImage.Width:=20; 
+      cImage.Width:=20;
 
 
       //############# REFACTOR THIS PART #########################################
@@ -1229,7 +1247,7 @@ var
   j             : Integer;
   k             : Integer;
 begin
-  writeln('function submenu entry called - ' + (Sender as TBCPanel).Name);
+
   //--------------------   Get the source and node      --------------------------//
 
   mPanel        := Sender as TBCPanel;
@@ -1276,7 +1294,7 @@ begin
     for j := 0 to (otherNode^.subMenuContainer as TBCPanel).ControlCount - 1 do
     begin
       ((otherNode^.subMenuContainer as TBCPanel).Controls[j] as TBCPanel).Background.Color:=clBackground ;
-      ((otherNode^.subMenuContainer as TBCPanel).Controls[j] as TBCPanel).Background.Style:=bbsColor ;   
+      ((otherNode^.subMenuContainer as TBCPanel).Controls[j] as TBCPanel).Background.Style:=bbsColor ;
       ((otherNode^.subMenuContainer as TBCPanel).Controls[j] as TBCPanel).Border.Width:=0;
 
 
@@ -1448,14 +1466,13 @@ begin
 
 
   //-----------------------     show submnu of itself      -----------------------//
-  writeln('sender is : ' + (Sender as TBCPanel).Name);
-  writeln('sender Parent is : ' +  (Sender as TBCPanel).Parent.Name);
+
   if ( Length(currNode^.Children) <> 0 ) and ( currNode^.subMenuContainer <> Nil ) then
   begin
     mPanel      := currNode^.subMenuContainer as TBCPanel;
     mPanel.Parent:= (Sender as TBCPanel).Parent.Parent;
     mPanel.Top  := (Sender as TBCPanel).Parent.Top  + (Sender as TBCPanel).Top;
-    mPanel.Left := (Sender as TBCPanel).Parent.Left + (Sender as TBCPanel).Width-10;
+    mPanel.Left := (Sender as TBCPanel).Parent.Left + (Sender as TBCPanel).Width;
     mPanel.Visible:= True;
     currNode^.isSubMenuDrawn := True;
   end;
@@ -1473,7 +1490,7 @@ var
   i             : Integer;
 begin
 
-   writeln('function submenu exit called - ' + (Sender as TBCPanel).Name)
+
 end; //###########################################################################// End of Function
 
 procedure TAdvancedMainMenu.subMenuChildItem_mouseEnter(Sender: TObject);
@@ -1711,14 +1728,6 @@ begin
   begin
     mPanel      := currNode^.subMenuContainer as TBCPanel;
     mPanel.Parent:= ((Sender as TBCLabel).Parent as TBCPanel).Parent.Parent;
-
-
-    writeLn( 'Entry to from child ' + currNode^.Name );
-    writeLn( 'Entry to from child (Exact Target)' + (Sender as TBCLabel).Name );
-    writeLn( 'Entry to from child (container is)' + (Sender as TBCLabel).Parent.Name );
-    writeln('parent is : ' + ((Sender as TBCLabel).Parent as TBCPanel).Parent.Parent.Name );
-    writeln('setting left : ' + (((Sender as TBCLabel).Parent as TBCPanel).Parent as TBCPanel).Name + ' - ' + IntToStr((((Sender as TBCLabel).Parent as TBCPanel).Parent as TBCPanel).Left) + ' # ' + ((Sender as TBCLabel).Parent as TBCPanel).Name + ' ~ ' + IntToStr(((Sender as TBCLabel).Parent as TBCPanel).Width));
-
     mPanel.Top  := ((Sender as TBCLabel).Parent as TBCPanel).Parent.Top  + ((Sender as TBCLabel).Parent as TBCPanel).Top;
     mPanel.Left := ((Sender as TBCLabel).Parent as TBCPanel).Parent.Left + ((Sender as TBCLabel).Parent as TBCPanel).Width;
     mPanel.Visible:= True;
@@ -2203,3 +2212,4 @@ begin
   Result                := j;
 end;
 end.
+

@@ -1229,7 +1229,7 @@ var
   j             : Integer;
   k             : Integer;
 begin
-
+  writeln('function submenu entry called - ' + (Sender as TBCPanel).Name);
   //--------------------   Get the source and node      --------------------------//
 
   mPanel        := Sender as TBCPanel;
@@ -1448,13 +1448,14 @@ begin
 
 
   //-----------------------     show submnu of itself      -----------------------//
-
+  writeln('sender is : ' + (Sender as TBCPanel).Name);
+  writeln('sender Parent is : ' +  (Sender as TBCPanel).Parent.Name);
   if ( Length(currNode^.Children) <> 0 ) and ( currNode^.subMenuContainer <> Nil ) then
   begin
     mPanel      := currNode^.subMenuContainer as TBCPanel;
     mPanel.Parent:= (Sender as TBCPanel).Parent.Parent;
     mPanel.Top  := (Sender as TBCPanel).Parent.Top  + (Sender as TBCPanel).Top;
-    mPanel.Left := (Sender as TBCPanel).Parent.Left + (Sender as TBCPanel).Width;
+    mPanel.Left := (Sender as TBCPanel).Parent.Left + (Sender as TBCPanel).Width-10;
     mPanel.Visible:= True;
     currNode^.isSubMenuDrawn := True;
   end;
@@ -1472,7 +1473,7 @@ var
   i             : Integer;
 begin
 
-
+   writeln('function submenu exit called - ' + (Sender as TBCPanel).Name)
 end; //###########################################################################// End of Function
 
 procedure TAdvancedMainMenu.subMenuChildItem_mouseEnter(Sender: TObject);
@@ -1710,6 +1711,14 @@ begin
   begin
     mPanel      := currNode^.subMenuContainer as TBCPanel;
     mPanel.Parent:= ((Sender as TBCLabel).Parent as TBCPanel).Parent.Parent;
+
+
+    writeLn( 'Entry to from child ' + currNode^.Name );
+    writeLn( 'Entry to from child (Exact Target)' + (Sender as TBCLabel).Name );
+    writeLn( 'Entry to from child (container is)' + (Sender as TBCLabel).Parent.Name );
+    writeln('parent is : ' + ((Sender as TBCLabel).Parent as TBCPanel).Parent.Parent.Name );
+    writeln('setting left : ' + (((Sender as TBCLabel).Parent as TBCPanel).Parent as TBCPanel).Name + ' - ' + IntToStr((((Sender as TBCLabel).Parent as TBCPanel).Parent as TBCPanel).Left) + ' # ' + ((Sender as TBCLabel).Parent as TBCPanel).Name + ' ~ ' + IntToStr(((Sender as TBCLabel).Parent as TBCPanel).Width));
+
     mPanel.Top  := ((Sender as TBCLabel).Parent as TBCPanel).Parent.Top  + ((Sender as TBCLabel).Parent as TBCPanel).Top;
     mPanel.Left := ((Sender as TBCLabel).Parent as TBCPanel).Parent.Left + ((Sender as TBCLabel).Parent as TBCPanel).Width;
     mPanel.Visible:= True;
